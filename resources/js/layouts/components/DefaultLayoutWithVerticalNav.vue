@@ -26,7 +26,7 @@ import { VerticalNavLayout } from '@layouts'
             icon="tabler-menu-2"
           />
         </IconBtn>
-        <h2 class="app-logo-title">{{ $user?.sekolah?.nama }} | {{ $user?.semester?.nama }}</h2>
+        <h2 class="app-logo-title">{{ $sekolah?.nama }} | {{ $semester?.nama }}</h2>
         <VSpacer />
         <NavbarThemeSwitcher class="me-2" />
         <!--NavBarI18n

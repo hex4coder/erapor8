@@ -25,4 +25,18 @@ class RombonganBelajar extends Model
 	{
 		return $this->belongsTo(Sekolah::class, 'sekolah_id', 'sekolah_id');
 	}
+	public function pd(){
+		return $this->hasManyThrough(
+            PesertaDidik::class,
+            AnggotaRombel::class,
+            'rombongan_belajar_id',
+            'peserta_didik_id',
+            'rombongan_belajar_id',
+            'peserta_didik_id'
+        );
+	}
+	public function kurikulum()
+	{
+		return $this->belongsTo(Kurikulum::class, 'kurikulum_id', 'kurikulum_id');
+	}
 }

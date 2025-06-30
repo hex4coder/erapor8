@@ -70,7 +70,7 @@ class User extends Authenticatable
     protected function profilePhotoPath(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ($value) ? "/storage/images/$value" : NULL,
+            get: fn ($value) => ($value) ? "/storage/images/$value" : '/images/avatars/blank-profile.png',
         );
     }
 }

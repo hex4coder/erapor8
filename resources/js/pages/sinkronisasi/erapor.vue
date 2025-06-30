@@ -17,7 +17,7 @@ const {
 } = await useApi(createUrl('/sinkronisasi/erapor', {
   query: {
     sekolah_id: $user.sekolah_id,
-    semester_id: $user.semester.semester_id,
+    semester_id: $semester.semester_id,
     user_id: $user.user_id,
   },
 }))
@@ -37,7 +37,7 @@ const kirimData = async () => {
     method: 'POST',
     body: {
       sekolah_id: $user.sekolah_id,
-      semester_id: $user.semester.semester_id,
+      semester_id: $semester.semester_id,
       user_id: $user.user_id,
     },
     onResponse({ request, response, options }) {
@@ -66,15 +66,15 @@ const kirimData = async () => {
                   <img src="/images/logo/logo-small.png" alt="Logo e-Rapor SMK" style="max-width: 100px">
                 </td>
                 <td width="30%">&nbsp;&nbsp;&nbsp;NPSN Sekolah</td>
-                <td width="60%">{{ $user.sekolah.npsn }}</td>
+                <td width="60%">{{ $sekolah.npsn }}</td>
               </tr>
               <tr>
                 <td>Nama Sekolah</td>
-                <td>{{ $user.sekolah.alamat }}</td>
+                <td>{{ $sekolah.alamat }}</td>
               </tr>
               <tr>
                 <td>Desa Kelurahan Sekolah</td>
-                <td>{{ $user.sekolah.desa_kelurahan }}</td>
+                <td>{{ $sekolah.desa_kelurahan }}</td>
               </tr>
             </tbody>
           </VTable>

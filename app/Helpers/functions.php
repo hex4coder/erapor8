@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use App\Models\Semester;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -193,4 +194,10 @@ function jenis_gtk($query){
     $data['instruktur'] = array(97);
     $data['asesor'] = array(98);
     return collect($data[$query]);
+}
+function merdeka($nama_kurikulum){
+    return Str::contains($nama_kurikulum, 'Merdeka');
+}
+function is_ppa($semester_id){
+    return ($semester_id >= 20221);
 }

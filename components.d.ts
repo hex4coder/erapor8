@@ -41,6 +41,7 @@ declare module 'vue' {
     CustomRadiosWithIcon: typeof import('./resources/js/@core/components/app-form-elements/CustomRadiosWithIcon.vue')['default']
     CustomRadiosWithImage: typeof import('./resources/js/@core/components/app-form-elements/CustomRadiosWithImage.vue')['default']
     DataTables: typeof import('./resources/js/components/DataTables.vue')['default']
+    DetilNilaiDialog: typeof import('./resources/js/components/dialogs/DetilNilaiDialog.vue')['default']
     DialogCloseBtn: typeof import('./resources/js/@core/components/DialogCloseBtn.vue')['default']
     DropZone: typeof import('./resources/js/@core/components/DropZone.vue')['default']
     EnableOneTimePasswordDialog: typeof import('./resources/js/components/dialogs/EnableOneTimePasswordDialog.vue')['default']

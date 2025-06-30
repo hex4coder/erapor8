@@ -70,7 +70,7 @@ const {
 } = await useApi(createUrl('/sinkronisasi/rombongan-belajar', {
   query: {
     sekolah_id: $user.sekolah_id,
-    semester_id: $user.semester.semester_id,
+    semester_id: $semester.semester_id,
     q: searchQuery,
     per_page,
     page,
@@ -140,8 +140,8 @@ const kirimData = (rombongan_belajar_id, nama_kelas) => {
         body: {
           rombongan_belajar_id: rombongan_belajar_id,
           nama_kelas: nama_kelas,
-          npsn: $user.sekolah.npsn,
-          semester_id: $user.semester.semester_id,
+          npsn: $sekolah.npsn,
+          semester_id: $semester.semester_id,
           url_dapodik: url_dapodik.value,
           token_dapodik: token_dapodik.value,
         },

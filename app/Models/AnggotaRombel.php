@@ -21,4 +21,7 @@ class AnggotaRombel extends Model
 	{
 		return $this->belongsTo(PesertaDidik::class, 'peserta_didik_id', 'peserta_didik_id');
 	}
+	public function nilai_akhir(){
+		return $this->hasMany(NilaiAkhir::class, 'anggota_rombel_id', 'anggota_rombel_id');
+	}
 }

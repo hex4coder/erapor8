@@ -25,18 +25,46 @@ const form = ref({
   token_dapodik: null,
   file: null,
 })
-const {
-  data: getData,
-  execute: fetchData,
-} = await useApi(createUrl('/setting', {
-  query: {
-    sekolah_id: $user.sekolah_id,
-    semester_id: $user.semester.semester_id,
-  },
-}))
-const data_semester = computed(() => getData.value.semester);
-const data_guru = computed(() => getData.value.data_guru);
-const data_rombel = computed(() => getData.value.data_rombel);
+onMounted(async () => {
+  await fetchData();
+});
+const data_semester = ref([])
+const data_guru = ref([])
+const data_rombel = ref([])
+const loadingBody = ref(true)
+const fetchData = async () => {
+  data_semester.value = []
+  data_guru.value = []
+  data_rombel.value = []
+  try {
+    const response = await useApi(createUrl('/setting', {
+      query: {
+        sekolah_id: $user.sekolah_id,
+        semester_id: $semester.semester_id,
+      },
+    }))
+    let getData = response.data
+    data_semester.value = getData.value?.semester
+    data_guru.value = getData.value?.data_guru
+    data_rombel.value = getData.value?.data_rombel
+    form.value.semester_id = getData.value?.semester_id;
+    form.value.tanggal_rapor = getData.value?.tanggal_rapor
+    form.value.tanggal_rapor_kelas_akhir = getData.value?.tanggal_rapor_kelas_akhir
+    form.value.zona = getData.value?.zona
+    form.value.kepala_sekolah = getData.value?.kepala_sekolah
+    form.value.jabatan = getData.value?.jabatan
+    form.value.rombel_4_tahun = getData.value?.rombel_4_tahun
+    form.value.url_dapodik = getData.value?.url_dapodik
+    form.value.token_dapodik = getData.value?.token_dapodik
+    if (getData.value?.logo_sekolah) {
+      logo_sekolah.value = getData.value?.logo_sekolah
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loadingBody.value = false;
+  }
+}
 const data_zona = ref([
   { value: 'Asia/Jakarta', title: 'Waktu Indonesia Barat (WIB)' },
   { value: 'Asia/Makassar', title: 'Waktu Indonesia Tengah (WITA)' },
@@ -48,19 +76,6 @@ const jabatan = ref([
   { value: 'Plh. Kepala Sekolah', title: 'PLH Kepala Sekolah' },
 ])
 const logo_sekolah = ref('/images/logo/tutwuri.png')
-const setData = ref(getData.value);
-form.value.semester_id = setData.value.semester_id;
-form.value.tanggal_rapor = setData.value.tanggal_rapor
-form.value.tanggal_rapor_kelas_akhir = setData.value.tanggal_rapor_kelas_akhir
-form.value.zona = setData.value.zona
-form.value.kepala_sekolah = setData.value.kepala_sekolah
-form.value.jabatan = setData.value.jabatan
-form.value.rombel_4_tahun = setData.value.rombel_4_tahun
-form.value.url_dapodik = setData.value.url_dapodik
-form.value.token_dapodik = setData.value.token_dapodik
-if(setData.value.logo_sekolah){
-  logo_sekolah.value = setData.value.logo_sekolah
-}
 const onFormSubmit = () => {
   refVForm.value?.validate().then(({ valid: isValid }) => {
     if (isValid) {
@@ -75,7 +90,7 @@ const submitForm = async () => {
   dataForm.append('photo', (form.value.file) ? form.value.file : '');
   dataForm.append('semester_id', form.value.semester_id);
   dataForm.append('sekolah_id', $user.sekolah_id);
-  dataForm.append('semester_aktif', $user.semester.semester_id);
+  dataForm.append('semester_aktif', $semester.semester_id);
   dataForm.append('tanggal_rapor_pts', (form.value.tanggal_rapor_pts) ? form.value.tanggal_rapor_pts : '')
   dataForm.append('tanggal_rapor', (form.value.tanggal_rapor) ? form.value.tanggal_rapor : '')
   dataForm.append('tanggal_rapor_kelas_akhir', (form.value.tanggal_rapor_kelas_akhir) ? form.value.tanggal_rapor_kelas_akhir : '')
@@ -92,7 +107,7 @@ const submitForm = async () => {
       let getData = response._data
       logoError.value = false
       logoErrorMessage.value = null
-      if(getData.errors){
+      if (getData.errors) {
         logoError.value = true
         logoErrorMessage.value = getData.message
       } else {
@@ -116,9 +131,16 @@ const dateConfig = ref({
 });
 </script>
 <template>
-  <div>
+  <section>
     <VCard title="Pengaturan Umum">
-      <VCardText>
+      <VCardText class="text-center" v-if="loadingBody">
+        <VProgressCircular
+          :size="60"
+          indeterminate
+          color="error"
+        />
+      </VCardText>
+      <VCardText v-else>
         <VForm ref="refVForm" @submit.prevent="onFormSubmit">
           <VRow>
             <VCol cols="7">
@@ -155,7 +177,8 @@ const dateConfig = ref({
                     item-title="nama" item-value="rombongan_belajar_id" require />
                 </VCol>
                 <VCol cols="12">
-                  <AppTextField v-model="form.url_dapodik" label="URL Dapodik" placeholder="Contoh: http://localhost:5774 (tanpa garis miring di akhir!)" />
+                  <AppTextField v-model="form.url_dapodik" label="URL Dapodik"
+                    placeholder="Contoh: http://localhost:5774 (tanpa garis miring di akhir!)" />
                 </VCol>
                 <VCol cols="12">
                   <AppTextField v-model="form.token_dapodik" label="Token Web Services Dapodik"
@@ -170,11 +193,12 @@ const dateConfig = ref({
             </VCol>
             <VCol cols="5">
               <VImg alt="Logo Sekolah" :src="logo_sekolah" cover class="w-100 mx-auto mb-10" />
-              <VFileInput v-model="form.file" :error="logoError" :error-messages="logoErrorMessage" accept="image/*" label="Unggah Logo Sekolah" />
+              <VFileInput v-model="form.file" :error="logoError" :error-messages="logoErrorMessage" accept="image/*"
+                label="Unggah Logo Sekolah" />
             </VCol>
           </VRow>
         </VForm>
       </VCardText>
     </VCard>
-  </div>
+  </section>
 </template>

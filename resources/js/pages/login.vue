@@ -53,14 +53,15 @@ const login = async () => {
       },
     });
 
-    const { accessToken, userData, userAbilityRules } = res;
-
-    useCookie("userAbilityRules").value = userData.ability;
-    ability.update(userData.ability);
+    const { accessToken, userData, sekolah, semester, userAbility, roles } = res;
+    useCookie("userAbilityRules").value = userAbility;
+    ability.update(userAbility);
     useCookie("userData").value = userData;
     useCookie("accessToken").value = accessToken;
+    useCookie("sekolah").value = sekolah;
+    useCookie("semester").value = semester;
+    useCookie("roles").value = roles;
     await nextTick(() => {
-      //window.location.replace('/')
       router.replace(route.query.to ? String(route.query.to) : "/");
     });
   } catch (err) {
@@ -75,7 +76,6 @@ const onSubmit = () => {
 };
 const { data: getData, execute: fetchData } = await useApi(createUrl("/auth/semester"));
 const data_semester = computed(() => getData.value.semester);
-//form.value.semester_id = computed(() => getData.value.semester_id)
 const semesterId = ref(getData.value.semester_id);
 form.value.semester_id = semesterId.value;
 </script>
@@ -83,7 +83,6 @@ form.value.semester_id = semesterId.value;
 <template>
   <a href="javascript:void(0)">
     <div class="auth-logo d-flex align-center gap-x-3">
-      <!--VNodeRenderer :nodes="themeConfig.app.logo" /-->
       <img :src="themeConfig.app.logo" height="24" />
       <h1 class="auth-title">
         {{ themeConfig.app.title }}

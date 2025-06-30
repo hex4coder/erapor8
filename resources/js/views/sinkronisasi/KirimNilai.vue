@@ -46,7 +46,7 @@ const {
 } = await useApi(createUrl('/sinkronisasi/get-matev-rapor', {
   query: {
     sekolah_id: $user.sekolah_id,
-    semester_id: $user.semester.semester_id,
+    semester_id: $semester.semester_id,
     q: searchQuery,
     per_page,
     page,

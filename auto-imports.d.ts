@@ -7,6 +7,9 @@
 export {}
 declare global {
   const $api: typeof import('./resources/js/utils/api.js')['$api']
+  const $role: typeof import('./resources/js/utils/mixins.js')['$role']
+  const $roles: typeof import('./resources/js/utils/mixins.js')['$roles']
+  const $sekolah: typeof import('./resources/js/utils/mixins.js')['$sekolah']
   const $semester: typeof import('./resources/js/utils/mixins.js')['$semester']
   const $user: typeof import('./resources/js/utils/mixins.js')['$user']
   const COOKIE_MAX_AGE_1_YEAR: typeof import('./resources/js/utils/constants.js')['COOKIE_MAX_AGE_1_YEAR']
@@ -369,6 +372,9 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly $api: UnwrapRef<typeof import('./resources/js/utils/api.js')['$api']>
+    readonly $roles: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$roles']>
+    readonly $sekolah: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$sekolah']>
+    readonly $semester: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$semester']>
     readonly $user: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$user']>
     readonly COOKIE_MAX_AGE_1_YEAR: UnwrapRef<typeof import('./resources/js/utils/constants.js')['COOKIE_MAX_AGE_1_YEAR']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>

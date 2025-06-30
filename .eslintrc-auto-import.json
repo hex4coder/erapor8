@@ -362,6 +362,9 @@
     "watchWithFilter": true,
     "whenever": true,
     "$user": true,
-    "$semester": true
+    "$semester": true,
+    "$role": true,
+    "$sekolah": true,
+    "$roles": true
   }
 }

@@ -17,7 +17,7 @@ const {
 } = await useApi(createUrl('/sinkronisasi', {
   query: {
     sekolah_id: $user.sekolah_id,
-    semester_id: $user.semester.semester_id,
+    semester_id: $semester.semester_id,
     user_id: $user.user_id,
   },
 }))
@@ -67,7 +67,7 @@ const syncSatuan = async (server, aksi) => {
         satuan: aksi,
         tujuan: server,
         sekolah_id: $user.sekolah_id,
-        semester_id: $user.semester.semester_id,
+        semester_id: $semester.semester_id,
         user_id: $user.user_id,
       },
       onResponse({ request, response, options }) {

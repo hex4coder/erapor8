@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pembelajaran extends Model
 {
+	use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+	use \Staudenmeir\EloquentHasManyDeep\HasTableAlias;
     use SoftDeletes;
     public $incrementing = false;
 	public $keyType = 'string';
@@ -36,5 +38,42 @@ class Pembelajaran extends Model
 	public function tema()
 	{
 		return $this->hasMany(Pembelajaran::class, 'induk_pembelajaran_id', 'pembelajaran_id');
+	}
+	public function rombongan_belajar()
+	{
+		return $this->belongsTo(RombonganBelajar::class, 'rombongan_belajar_id', 'rombongan_belajar_id');
+	}
+	public function anggota_rombel(){
+		return $this->hasManyThrough(
+            AnggotaRombel::class,
+			RombonganBelajar::class,
+			'rombongan_belajar_id',
+			'rombongan_belajar_id',
+			'rombongan_belajar_id',
+			'rombongan_belajar_id'
+        );
+    }
+	public function pd_pkl()
+    {
+		return $this->hasManyDeep(
+			PdPkl::class, 
+			[RombonganBelajar::class, PraktikKerjaLapangan::class],
+			[
+				'rombongan_belajar_id', // Foreign key on the "Rombongan_belajar" table.
+				'rombongan_belajar_id',    // Foreign key on the "Praktik_kerja_lapangan" table.
+				'pkl_id'     // Foreign key on the "Pd_pkl" table.
+			],
+			[
+				'rombongan_belajar_id', // Local key on the "Praktik_kerja_lapangan" table.
+				'rombongan_belajar_id', // Local key on the "Rombongan_belajar" table.
+				'pkl_id'  // Local key on the "Praktik_kerja_lapangan" table.
+			]
+		);
+	}
+	public function pengajar(){
+		return $this->hasOne(Ptk::class, 'guru_id', 'guru_pengajar_id');
+	}
+	public function induk(){
+		return $this->belongsTo(Pembelajaran::class, 'pembelajaran_id', 'induk_pembelajaran_id');
 	}
 }

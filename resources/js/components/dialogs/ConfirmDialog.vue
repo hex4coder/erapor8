@@ -24,10 +24,6 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  confirmIcon: {
-    type: String,
-    required: true,
-  },
 })
 
 const emit = defineEmits([

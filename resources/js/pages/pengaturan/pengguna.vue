@@ -75,7 +75,7 @@ const fetchData = async () => {
         q: options.value.searchQuery,
         page: options.value.page,
         per_page: options.value.itemsPerPage,
-        periode_aktif: $user.semester.nama,
+        periode_aktif: $semester.nama,
         sekolah_id: $user.sekolah_id,
         role_id: options.value.selectedRole,
         sortby: options.value.sortby,
@@ -114,9 +114,9 @@ const confirmGenerate = async (val) => {
     method: 'POST',
     body: {
       aksi: val,
-      semester_id: $user.semester.semester_id,
+      semester_id: $semester.semester_id,
       sekolah_id: $user.sekolah_id,
-      periode_aktif: $user.semester.nama,
+      periode_aktif: $semester.nama,
     },
     onResponse({ request, response, options }) {
       let getData = response._data
@@ -150,7 +150,7 @@ const detilUser = async (user_id) => {
     method: 'POST',
     body: {
       user_id: user_id,
-      periode_aktif: $user.semester.nama,
+      periode_aktif: $semester.nama,
     },
     onResponse({ request, response, options }) {
       let getData = response._data
@@ -233,7 +233,7 @@ const onsubmit = async () => {
     body: {
       user_id: dialogBody.value.userId,
       akses: selectedRoles.value,
-      periode_aktif: $user.semester.nama,
+      periode_aktif: $semester.nama,
     },
     onResponse({ request, response, options }) {
       let getData = response._data
@@ -399,7 +399,7 @@ const confirmClose = (val) => {
         </VTable>
         <template v-if="availableRoles.length">
           <VCardText>
-            <h4>Tambah Hak Akses di Tahun Pelajaran {{ $user.semester.nama }}</h4>
+            <h4>Tambah Hak Akses di Tahun Pelajaran {{ $semester.nama }}</h4>
             <VCheckbox v-for="role in availableRoles" :key="role" v-model="selectedRoles" :label="role.text"
               :value="role.value" />
           </VCardText>

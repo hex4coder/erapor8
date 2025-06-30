@@ -12,12 +12,18 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('logout', [AuthController::class, 'logout']);
+        Route::get('user', [AuthController::class, 'user']);
+        Route::post('user', [AuthController::class, 'user']);
     });
 });
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::group(['prefix' => 'dashboard'], function () {
         Route::get('/', [DashboardController::class, 'index']);
+        Route::post('/', [DashboardController::class, 'index']);
+        Route::post('/wali', [DashboardController::class, 'wali']);
         Route::post('/status-penilaian', [DashboardController::class, 'status_penilaian']);
+        Route::post('/detil-penilaian', [DashboardController::class, 'detil_penilaian']);
+        Route::post('/generate-nilai', [DashboardController::class, 'generate_nilai']);
     });
     Route::group(['prefix' => 'sinkronisasi'], function () {
         Route::get('/', [SinkronisasiController::class, 'index']);

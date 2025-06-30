@@ -50,9 +50,8 @@ class AuthController extends Controller
         }
 
         $pengguna = $request->user();
-        $tokenResult = $pengguna->createToken('Personal Access Token');
-        $token = $tokenResult->plainTextToken;
         $user = $this->loggedUser($pengguna);
+        return response()->json($user);
         return response()->json([
             'accessToken' =>$token,
             'userData' => $pengguna,
@@ -272,19 +271,40 @@ class AuthController extends Controller
                 ],
             ];
         }
-        $user->ability = array_filter(array_merge($general, $admin, $tu, $guru, $waka, $wali, $pilihan, $kaprog, $projek, $internal, $pembina_ekskul, $pembimbing, $siswa));
+        $userAbility = array_filter(array_merge($general, $admin, $tu, $guru, $waka, $wali, $pilihan, $kaprog, $projek, $internal, $pembina_ekskul, $pembimbing, $siswa));
         if($user->allPermissions(['display_name'], $semester->nama)->count()){
-            $user->role = $user->allPermissions(['display_name'], $semester->nama)->implode('display_name', ', ');
-            $user->roles = $user->allPermissions(['name'], $semester->nama)->pluck('name')->toArray();
-            $user->check = 'ada';
+            //$roles = $user->allPermissions(['display_name'], $semester->nama)->implode('display_name', ', ');
+            //$roles = $user->allPermissions(['name'], $semester->nama)->pluck('name')->toArray();
+            $roles = $user->allPermissions(['display_name'], $semester->nama)->pluck('display_name')->toArray();
         } else {
-            $user->role = $user->roles->unique()->implode('display_name', ', ');
-            $user->roles = $user->roles->unique()->pluck('name')->toArray();
-            $user->check = 'ga ada';
+            //$roles = $user->roles->unique()->implode('display_name', ', ');
+            $roles = $user->roles->unique()->pluck('display_name')->toArray();
         }
-        $user->sekolah = $user->sekolah;
-        $user->semester = $semester;
-        return $user;
+        $sekolah = $user->sekolah;
+        unset($user->sekolah);
+        $tokenResult = $user->createToken('Personal Access Token');
+        $token = $tokenResult->plainTextToken;
+        $data = [
+            'accessToken' =>  $token,
+            'userData' => $user,
+            'token_type' => 'Bearer',
+            'sekolah' => $sekolah,
+            'semester' => $semester,
+            'userAbility' => $userAbility,
+            'roles' => $roles,
+        ];
+        return $data;
+        return response()->json([
+            'accessToken' =>$token,
+            'userData' => $pengguna,
+            'token_type' => 'Bearer',
+            'userAbilityRules' => [
+                [
+                    'action' => 'manage',
+                    'subject' => 'all',
+                ]
+            ],
+        ]);
     }
     public function logout(Request $request)
     {
@@ -292,5 +312,17 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
+    }
+    public function user(){
+        if(request()->isMethod('POST')){
+            $data = [
+                'color' => 'success',
+                'title' => 'Berhasil!',
+                'text' => 'Pengguna PTK berhasil diperbaharui',
+            ];
+        } else {
+            $data = request()->user();
+        }
+        return response()->json($data);
     }
 }
