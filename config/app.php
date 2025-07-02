@@ -15,7 +15,7 @@ return [
 
     'name' => 'e-Rapor SMK',
     'version' => env('APP_VERSION', '8.0.0'),
-    'registration' => env('REGISTRATION', FALSE),
+    'registration' => env('APP_REGISTRATION', FALSE),
 
     /*
     |--------------------------------------------------------------------------

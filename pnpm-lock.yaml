@@ -145,6 +145,9 @@ dependencies:
   vue3-perfect-scrollbar:
     specifier: 2.0.0
     version: 2.0.0(vue@3.5.13)
+  vue3-toastify:
+    specifier: ^0.2.8
+    version: 0.2.8(vue@3.5.13)
   vuetify:
     specifier: 3.7.5
     version: 3.7.5(typescript@5.8.3)(vite-plugin-vuetify@2.0.3)(vue@3.5.13)
@@ -8475,6 +8478,18 @@ packages:
       vue: ^3.0.0
     dependencies:
       perfect-scrollbar: 1.5.6
+      vue: 3.5.13(typescript@5.8.3)
+    dev: false
+
+  /vue3-toastify@0.2.8(vue@3.5.13):
+    resolution: {integrity: sha512-8jDOqsJaBZEbGpCbhWDETJc11D1lZefvgFPq/IPdM+U7+qyXoVPDvK6uq/FIgyV7qV0NcNzvGBMEzjsLQqGROw==}
+    engines: {node: '>=20', npm: '>=9.0.0'}
+    peerDependencies:
+      vue: '>=3.2.0'
+    peerDependenciesMeta:
+      vue:
+        optional: true
+    dependencies:
       vue: 3.5.13(typescript@5.8.3)
     dev: false
 

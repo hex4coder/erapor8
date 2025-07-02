@@ -209,7 +209,6 @@ const refreshNilai = () => {
               </template>
             </tbody>
           </VTable>
-          <VCardText></VCardText>
         </VCard>
       </VCol>
       <DetilNilaiDialog v-model:isDialogVisible="isDialogVisible" :item-data="itemData" :title-detil-nilai="titleDetilNilai"

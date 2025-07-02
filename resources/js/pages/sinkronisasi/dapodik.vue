@@ -1,7 +1,6 @@
 <script setup>
 import { themeConfig } from '@themeConfig';
 import { useHead } from '@unhead/vue';
-import Swal from 'sweetalert2';
 useHead({
   title: `Ambil Data Dapodik | ${themeConfig.app.title}`
 })
@@ -11,19 +10,35 @@ definePage({
     subject: 'Administrator',
   },
 })
-const {
-  data: getData,
-  execute: fetchData,
-} = await useApi(createUrl('/sinkronisasi', {
-  query: {
-    sekolah_id: $user.sekolah_id,
-    semester_id: $semester.semester_id,
-    user_id: $user.user_id,
-  },
-}))
-const jam_sinkron = computed(() => getData.value.jam_sinkron)
-const data_sinkron = computed(() => getData.value.data_sinkron)
-const error = computed(() => getData.value.error)
+const loadingBody = ref(true)
+const jam_sinkron = ref(false)
+const data_sinkron = ref([])
+const error = ref()
+const isAlertDialogVisible = ref(false)
+const notif = ref({
+    color: '',
+    title: '',
+    text: '',
+})
+const fetchData = async () => {
+  try {
+    const response = await useApi(createUrl('/sinkronisasi', {
+      query: {
+        sekolah_id: $user.sekolah_id,
+        semester_id: $semester.semester_id,
+        user_id: $user.user_id,
+      },
+    }))
+    let getData = response.data.value
+    jam_sinkron.value = getData.jam_sinkron
+    data_sinkron.value = getData.data_sinkron
+    error.value = getData.error
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loadingBody.value = false;
+  }
+}
 const kurang = (item) => {
   if (item.dapodik > item.erapor)
     return true
@@ -76,21 +91,29 @@ const syncSatuan = async (server, aksi) => {
         show.value = false
         clearInterval(myInterval);
         syncText.value = 'Proses sinkronisasi selesai'
-        Swal.fire({
-          icon: 'success',
+        isAlertDialogVisible.value = true
+        notif.value = {
+          color: 'success',
           title: 'Berhasil',
           text: 'Sinkronisasi Dapodik Berhasil',
-        }).then(result => {
-          fetchData()
-        })
+        }
       }
     })
   }
 }
+onMounted(async () => {
+  await fetchData();
+});
+const confirmAlert = () => {
+    fetchData()
+}
 </script>
 <template>
   <div>
-    <VCard>
+    <VCard class="text-center mb-10" v-if="loadingBody">
+      <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+    </VCard>
+    <VCard v-else>
       <VCardText v-if="show">
         <VAlert color="secondary" class="text-center">
           {{ syncText }}
@@ -154,5 +177,7 @@ const syncSatuan = async (server, aksi) => {
         </template>
       </VCardText>
     </VCard>
+    <AlertDialog v-model:isDialogVisible="isAlertDialogVisible" :confirm-color="notif.color"
+            :confirm-title="notif.title" :confirm-msg="notif.text" @confirm="confirmAlert"></AlertDialog>
   </div>
 </template>

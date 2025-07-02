@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class PesertaDidik extends Model
 {
@@ -13,6 +15,31 @@ class PesertaDidik extends Model
 	protected $table = 'peserta_didik';
 	protected $primaryKey = 'peserta_didik_id';
 	protected $guarded = [];
+    protected $appends = ['tempat_tanggal_lahir', 'tanggal_lahir_indo', 'jenis_kelamin_str'];
+    protected function nama(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => strtoupper($attributes['nama']),
+        );
+    }
+    protected function tempatTanggalLahir(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => isset($attributes['tempat_lahir']) ? strtoupper($attributes['tempat_lahir']).', '.Carbon::parse($this->attributes['tanggal_lahir'])->translatedFormat('d F Y') : NULL,
+        );
+    }
+    protected function tanggalLahirIndo(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => isset($attributes['tanggal_lahir']) ? Carbon::parse($this->attributes['tanggal_lahir'])->translatedFormat('d F Y') : NULL,
+        );
+    }
+    protected function jenisKelaminStr(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => isset($attributes['jenis_kelamin']) ? ($attributes['jenis_kelamin'] == 'L') ? 'Laki-laki' : 'Perempuan' : NULL,
+        );
+    }
 	public function anggota_rombel()
 	{
 		return $this->hasOne(AnggotaRombel::class, 'peserta_didik_id', 'peserta_didik_id');

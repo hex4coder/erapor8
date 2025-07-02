@@ -6,9 +6,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinkronisasiController;
+use App\Http\Controllers\PtkController;
+use App\Http\Controllers\RombelController;
 
 Route::group(['prefix' => 'auth'], function () {
     Route::get('semester', [AuthController::class, 'semester']);
+    Route::get('/allow-register', [AuthController::class, 'allow_register']);
+    Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('logout', [AuthController::class, 'logout']);
@@ -35,6 +39,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/get-matev-rapor', [SinkronisasiController::class, 'get_matev_rapor']);
         Route::get('/erapor', [SinkronisasiController::class, 'erapor']);
         Route::post('/kirim-data', [SinkronisasiController::class, 'kirim_data']);
+        Route::get('/nilai-dapodik', [SinkronisasiController::class, 'nilai_dapodik']);
+        Route::post('/cek-koneksi', [SinkronisasiController::class, 'cek_koneksi']);
     });
     Route::group(['prefix' => 'setting'], function () {
         Route::get('/', [SettingController::class, 'index']);
@@ -44,13 +50,20 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('hapus-akses', [SettingController::class, 'hapus_akses']);
         Route::post('update-akses', [SettingController::class, 'update_akses']);
         Route::post('generate-pengguna', [SettingController::class, 'generate_pengguna']);
-        Route::post('users-roles', [SettingController::class, 'users_roles']);
-        Route::get('permissions', [SettingController::class, 'permissions']);
-        Route::post('permissions', [SettingController::class, 'permissions']);
-        Route::get('profile', [SettingController::class, 'profile']);
-        Route::post('profile', [SettingController::class, 'profile']);
-        Route::get('languages', [SettingController::class, 'languages']);
-        Route::post('languages', [SettingController::class, 'languages']);
-        Route::delete('/destroy/{data}/{id}', [SettingController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'referensi'], function () {
+        Route::group(['prefix' => 'ptk'], function () {
+            Route::get('/', [PtkController::class, 'index']);
+            Route::get('/detil/{id}', [PtkController::class, 'show']);
+            Route::post('/update', [PtkController::class, 'update']);
+        });
+        Route::group(['prefix' => 'rombongan-belajar'], function () {
+            Route::get('/', [RombelController::class, 'index']);
+            Route::post('/pembelajaran', [RombelController::class, 'pembelajaran']);
+            Route::post('/simpan-pembelajaran', [RombelController::class, 'simpan_pembelajaran']);
+            Route::post('/hapus-pembelajaran', [RombelController::class, 'hapus_pembelajaran']);
+            Route::post('/anggota-rombel', [RombelController::class, 'anggota_rombel']);
+            Route::post('/hapus-anggota-rombel', [RombelController::class, 'hapus_anggota_rombel']);
+        });
     });
 });

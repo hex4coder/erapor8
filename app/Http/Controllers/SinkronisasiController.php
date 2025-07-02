@@ -13,6 +13,7 @@ use App\Models\RombonganBelajar;
 use App\Models\Pembelajaran;
 use App\Models\MatevRapor;
 use App\Models\SyncLog;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Storage;
 use Artisan;
@@ -293,7 +294,7 @@ class SinkronisasiController extends Controller
             $query->where('sekolah_id', request()->sekolah_id);
         })->with([
             'wali_kelas' => function($query){
-                $query->select('guru_id', 'nama');
+                $query->select('guru_id', 'nama', 'gelar_depan', 'gelar_belakang');
             },
         ])
         ->withCount([
@@ -335,8 +336,7 @@ class SinkronisasiController extends Controller
         return response()->json([
             'status' => 'success', 
             'data' => $data,
-            'url_dapodik' => get_setting('url_dapodik', request()->sekolah_id),
-            'token_dapodik' => get_setting('token_dapodik', request()->sekolah_id),
+            'request' => request()->all(),
         ]);
     }
     public function matev_rapor($repeat = NULL){
@@ -376,7 +376,7 @@ class SinkronisasiController extends Controller
                     $this->createMatev(request()->rombongan_belajar_id);
                 }
                 $data = [
-                    'icon' => 'success',
+                    'color' => 'success',
                     'title' => 'Berhasil!',
                     'text' => $jml_pembelajaran.' Mata Evaluasi berhasil di ambil dari Dapodik',
                     'request' => request()->all(),
@@ -384,7 +384,7 @@ class SinkronisasiController extends Controller
             } else {
                 $this->createMatev(request()->rombongan_belajar_id);
                 $data = [
-                    'icon' => 'success',
+                    'color' => 'success',
                     'title' => 'Berhasil!',
                     'text' => 'Mata Evaluasi berhasil di generate dari kelas '.request()->nama_kelas.'!',
                     'request' => request()->all(),
@@ -422,7 +422,7 @@ class SinkronisasiController extends Controller
             }
             MatevRapor::where('rombongan_belajar_id', request()->rombongan_belajar_id)->whereNotIn('pembelajaran_id', $pembelajaran_id)->update(['soft_delete' => 0]);
             $data = [
-                'icon' => 'success',
+                'color' => 'success',
                 'title' => 'Berhasil!',
                 'text' => $insert.' Mata Evaluasi berhasil di generate dari kelas '.request()->nama_kelas.'!',
                 'request' => request()->all(),
@@ -541,7 +541,7 @@ class SinkronisasiController extends Controller
             }
         } catch (\Exception $e){
             $data = [
-                'icon' => 'error',
+                'color' => 'error',
                 'title' => 'Gagal!',
                 'text' => 'Gagal terkoneksi ke Web Services Dapodik. Silahkan periksa kembali isian Anda!',
                 'message' => $e->getMessage(),
@@ -549,7 +549,7 @@ class SinkronisasiController extends Controller
             return response()->json($data);
         }
         $data = [
-            'icon' => 'success',
+            'color' => 'success',
             'title' => 'Berhasil!',
             'text' => $insert.' Mata Evaluasi dan '.$nilai.' Nilai Akhir berhasil di kirim dari kelas '.request()->nama_kelas.'!',
             'request' => request()->all(),
@@ -562,7 +562,7 @@ class SinkronisasiController extends Controller
             $query->where('semester_id', request()->semester_id);
             $query->where('sekolah_id', request()->sekolah_id);
             $query->with(['guru' => function($query){
-                $query->select('guru_id', 'nama');
+                $query->select('guru_id', 'nama', 'gelar_depan', 'gelar_belakang');
             }]);
         })->orderBy(request()->sortby, request()->sortbydesc)
         ->orderBy('rombongan_belajar_id', request()->sortbydesc)
@@ -631,10 +631,116 @@ class SinkronisasiController extends Controller
             ]);
         }
         $data = [
-            'icon' => 'success',
+            'color' => 'success',
             'title' => 'Berhasil!',
             'text' => 'Pengiriman data e-Rapor berhasil',
         ];
+        return response()->json($data);
+    }
+    public function nilai_dapodik(){
+        $url_dapodik = get_setting('url_dapodik', request()->sekolah_id);
+        $token_dapodik = get_setting('token_dapodik', request()->sekolah_id);
+        $body = NULL;
+        try {
+            if($url_dapodik && $token_dapodik){
+                $response = Http::withToken($token_dapodik)->retry(3, 100)->get($url_dapodik.'/WebService/getSekolah?npsn='.request()->npsn.'&semester_id='.request()->semester_id);
+                if($response->object()){
+                    $body = $response->object();
+                } else {
+                    $body = get_string_between($response->body(), '{', '}');
+                    $body = json_decode('{'.$body.'}');
+                }
+            }
+        } catch (\Throwable $th) {
+            $body = ['message' => $th->getMessage()];
+        }
+        $data = [
+            'url_dapodik' => $url_dapodik,
+            'token_dapodik' => $token_dapodik,
+            'rombel_erapor' => [],
+            'rombel_dapodik' => [],
+            'matev_dapodik' => [],
+            'matev_erapor' => [],
+            'nilai_dapodik' => [],
+            'nilai_erapor' => [],
+            'dapodik' => $body,
+        ];
+        return response()->json($data);
+    }
+    public function cek_koneksi(){
+        request()->validate(
+            [
+                'url_dapodik' => 'required|url',
+                'token_dapodik' => 'required',
+            ],
+            [
+                'url_dapodik.required' => 'URL Dapodik tidak boleh kosong',
+                'url_dapodik.url' => 'URL Dapodik tidak valid',
+                'token_dapodik.required' => 'Token Dapodik  tidak boleh kosong',
+            ]
+        );
+        $response = NULL;
+        try {
+            $response = Http::withToken(request()->token_dapodik)->retry(3, 100)->get(request()->url_dapodik.'/WebService/getSekolah?npsn='.request()->npsn.'&semester_id='.request()->semester_id);
+        } catch (\Exception $e){
+            $data = [
+                'color' => 'error',
+                'title' => 'Gagal!',
+                'text' => $e->getMessage(),
+            ];
+            return response()->json($data);
+        }
+        if($response){
+            if($response->successful()){
+                if($response->object()){
+                    $body = $response->object();
+                    $success = TRUE;
+                    $message = NULL;
+                } else {
+                    $body = get_string_between($response->body(), '{', '}');
+                    $body = json_decode('{'.$body.'}');
+                    $success = $body->success;
+                    $message = $body->message;
+                }
+                if($success){
+                    Setting::updateOrCreate(
+                        [
+                            'key' => 'url_dapodik',
+                            'sekolah_id' => request()->sekolah_id,
+                        ],
+                        [
+                            'value' => request()->url_dapodik,
+                        ]
+                    );
+                    Setting::updateOrCreate(
+                        [
+                            'key' => 'token_dapodik',
+                            'sekolah_id' => request()->sekolah_id,
+                        ],
+                        [
+                            'value' => request()->token_dapodik,
+                        ]
+                    );
+                }
+                $data = [
+                    'color' => ($success) ? 'success' : 'error',
+                    'title' => ($success) ? 'Berhasil' : 'Gagal!',
+                    'text' => ($success) ? 'Koneksi Web Services Dapodik berhasil!' : $message,
+                    'status' => $response->status(),
+                    'body' => $body,
+                    'url' => request()->url_dapodik.'/WebService/getSekolah?npsn='.request()->npsn.'&semester_id='.request()->semester_id,
+                ];
+            } else {
+                $data = [
+                    'color' => 'error',
+                    'title' => 'Gagal!',
+                    'text' => 'Gagal terkoneksi ke Web Services Dapodik. Silahkan periksa kembali isian Anda!',
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'url' => request()->url_dapodik.'/WebService/getSekolah?npsn='.request()->npsn.'&semester_id='.request()->semester_id,
+                ];
+            }
+        }
         return response()->json($data);
     }
 }

@@ -19,6 +19,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     'root': RouteRecordInfo<'root', '/', Record<never, never>, Record<never, never>>,
+    '$404': RouteRecordInfo<'$404', '/:404(.*)', { 404: ParamValue<true> }, { 404: ParamValue<false> }>,
     '$error': RouteRecordInfo<'$error', '/:error(.*)', { error: ParamValue<true> }, { error: ParamValue<false> }>,
     'changelog': RouteRecordInfo<'changelog', '/changelog', Record<never, never>, Record<never, never>>,
     'check-update': RouteRecordInfo<'check-update', '/check-update', Record<never, never>, Record<never, never>>,
@@ -63,10 +64,7 @@ declare module 'vue-router/auto-routes' {
     'referensi-rombongan-belajar-reguler': RouteRecordInfo<'referensi-rombongan-belajar-reguler', '/referensi/rombongan-belajar/reguler', Record<never, never>, Record<never, never>>,
     'referensi-tujuan-pembelajaran': RouteRecordInfo<'referensi-tujuan-pembelajaran', '/referensi/tujuan-pembelajaran', Record<never, never>, Record<never, never>>,
     'referensi-ukk': RouteRecordInfo<'referensi-ukk', '/referensi/ukk', Record<never, never>, Record<never, never>>,
-    'settings-languages': RouteRecordInfo<'settings-languages', '/settings/languages', Record<never, never>, Record<never, never>>,
-    'settings-permissions': RouteRecordInfo<'settings-permissions', '/settings/permissions', Record<never, never>, Record<never, never>>,
-    'settings-profile': RouteRecordInfo<'settings-profile', '/settings/profile', Record<never, never>, Record<never, never>>,
-    'settings-users-roles': RouteRecordInfo<'settings-users-roles', '/settings/users-roles', Record<never, never>, Record<never, never>>,
+    'register': RouteRecordInfo<'register', '/register', Record<never, never>, Record<never, never>>,
     'sinkronisasi-dapodik': RouteRecordInfo<'sinkronisasi-dapodik', '/sinkronisasi/dapodik', Record<never, never>, Record<never, never>>,
     'sinkronisasi-erapor': RouteRecordInfo<'sinkronisasi-erapor', '/sinkronisasi/erapor', Record<never, never>, Record<never, never>>,
     'sinkronisasi-kirim-nilai-dapodik': RouteRecordInfo<'sinkronisasi-kirim-nilai-dapodik', '/sinkronisasi/kirim-nilai-dapodik', Record<never, never>, Record<never, never>>,

@@ -9,6 +9,13 @@ const app = ref()
 const helpdesk = ref([])
 const text_wa = ref()
 const loadingBody = ref(true)
+const textDialog = ref('')
+const isConfirmDialogVisible = ref(false)
+const notif = ref({
+  color: '',
+  title: '',
+  text: '',
+})
 const fetchData = async () => {
   try {
     const response = await useApi(createUrl('/dashboard', {
@@ -32,47 +39,36 @@ const fetchData = async () => {
   }
 }
 const changeStatus = (val) => {
-  var text;
   if (val) {
-    text = 'Penilaian akan di aktifkan'
+    textDialog.value = 'Penilaian akan di aktifkan'
   } else {
-    text = 'Penilaian akan di nonaktifkan'
+    textDialog.value = 'Penilaian akan di nonaktifkan'
   }
-  /*Swal.fire({
-    title: 'Apakah Anda yakin?',
-    text: text,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yakin!',
-    cancelButtonText: 'Batal',
-    allowOutsideClick: () => !Swal.isLoading(),
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      await $api('/dashboard/status-penilaian', {
-        method: 'POST',
-        body: {
-          status: val,
-          sekolah_id: $user.sekolah_id,
-          semester_id: $semester.semester_id,
-        },
-        onResponse({ request, response, options }) {
-          let getData = response._data
-          Swal.fire({
-            icon: getData.icon,
-            title: getData.title,
-            text: getData.text,
-            customClass: {
-              confirmButton: 'btn btn-success',
-            },
-          }).then(res => {
-            fetchData()
-          })
-        },
-      })
-    } else {
-      status_penilaian.value = !val
-    }
-  })*/
+  isConfirmDialogVisible.value = true
+}
+const confirmDialog = async (val) => {
+  if (!val) {
+    status_penilaian.value = !status_penilaian.value
+  }
+  await $api('/dashboard/status-penilaian', {
+    method: 'POST',
+    body: {
+      status: status_penilaian.value,
+      sekolah_id: $user.sekolah_id,
+      semester_id: $semester.semester_id,
+    },
+    onResponse({ request, response, options }) {
+      let getData = response._data
+      notif.value = {
+        color: getData.color,
+        title: getData.title,
+        text: getData.text,
+      }
+    },
+  })
+}
+const confirmClose = () => {
+  fetchData()
 }
 </script>
 <template>
@@ -114,10 +110,14 @@ const changeStatus = (val) => {
     <VCol cols="12">
       <VRow>
         <VCol cols="7" md="7" sm="12">
-          <VCard title="Data Sekolah" class="text-center mb-10" v-if="loadingBody">
-            <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+          <VCard title="Data Sekolah" v-if="loadingBody">
+            <VCardText class="text-center">
+              <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+            </VCardText>
           </VCard>
           <VCard title="Data Sekolah" class="mb-10" v-else>
+            <VCardText></VCardText>
+            <VDivider />
             <VTable class="text-no-wrap">
               <tbody>
                 <tr>
@@ -171,10 +171,13 @@ const changeStatus = (val) => {
             Kementerian Pendidikan Dasar dan Menengah Republik Indonesia</p>
         </VCol>
         <VCol cols="5" md="5" sm="12">
-          <VCard class="text-center" title="Informasi Aplikasi" v-if="loadingBody">
-            <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+          <VCard title="Informasi Aplikasi" v-if="loadingBody">
+            <VCardText class="text-center">
+              <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+            </VCardText>
           </VCard>
           <VCard title="Informasi Aplikasi" v-else>
+            <VDivider class="mt-2" />
             <VTable density="compact" class="text-no-wrap">
               <tbody>
                 <tr>
@@ -199,10 +202,13 @@ const changeStatus = (val) => {
               </tbody>
             </VTable>
           </VCard>
-          <VCard class="text-center mt-4" title="Helpdesk e-Rapor SMK" v-if="loadingBody">
-            <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+          <VCard class="mt-4" title="Helpdesk e-Rapor SMK" v-if="loadingBody">
+            <VCardText class="text-center">
+              <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
+            </VCardText>
           </VCard>
           <VCard title="Helpdesk e-Rapor SMK" class="mt-4" v-else>
+            <VDivider class="mt-2" />
             <VTable density="compact" class="text-no-wrap">
               <thead>
                 <tr>
@@ -226,6 +232,9 @@ const changeStatus = (val) => {
         </VCol>
       </VRow>
     </VCol>
+    <ConfirmDialog v-model:isDialogVisible="isConfirmDialogVisible" confirmation-question="Apakah Anda yakin?"
+      :confirmation-text="textDialog" :confirm-color="notif.color" :confirm-title="notif.title"
+      :confirm-msg="notif.text" @confirm="confirmDialog" @close="confirmClose" />
   </VRow>
 </template>
 <style lang="scss" scoped>

@@ -1,7 +1,6 @@
 <script setup>
 import { themeConfig } from '@themeConfig';
 import { useHead } from '@unhead/vue';
-import Swal from 'sweetalert2';
 useHead({
   title: `Kirim Data e-Rapor | ${themeConfig.app.title}`
 })
@@ -11,21 +10,42 @@ definePage({
     subject: 'Administrator',
   },
 })
-const {
-  data: getData,
-  execute: fetchData,
-} = await useApi(createUrl('/sinkronisasi/erapor', {
-  query: {
-    sekolah_id: $user.sekolah_id,
-    semester_id: $semester.semester_id,
-    user_id: $user.user_id,
-  },
-}))
-const last_sync = computed(() => getData.value.last_sync)
-const table_sync = computed(() => getData.value.table_sync)
-const jumlah = computed(() => getData.value.jumlah)
-const error = computed(() => getData.value.response?.error)
-const message = computed(() => getData.value.response?.message)
+const loadingBody = ref(true)
+const isAlertDialogVisible = ref(false)
+const notif = ref({
+    color: '',
+    title: '',
+    text: '',
+})
+onMounted(async () => {
+  await fetchData();
+});
+const last_sync = ref()
+const table_sync = ref([])
+const jumlah = ref(0)
+const error = ref()
+const message = ref('')
+const fetchData = async () => {
+  try {
+    const response = await useApi(createUrl('/sinkronisasi/erapor', {
+      query: {
+        sekolah_id: $user.sekolah_id,
+        semester_id: $semester.semester_id,
+        user_id: $user.user_id,
+      },
+    }))
+    let getData = response.data.value
+    last_sync.value = getData.last_sync
+    table_sync.value = getData.table_sync
+    jumlah.value = getData.jumlah
+    error.value = getData.error
+    message.value = getData.message
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loadingBody.value = false;
+  }
+}
 const isDialogVisible = ref(false)
 if (jumlah.value > 1000) {
   isDialogVisible.value = true
@@ -43,22 +63,33 @@ const kirimData = async () => {
     onResponse({ request, response, options }) {
       let getData = response._data
       loading.value = false
-      Swal.fire({
-        icon: getData.icon,
+      isAlertDialogVisible.value = true
+        notif.value = {
+        color: getData.color,
         title: getData.title,
         text: getData.text,
-      }).then(result => {
-        fetchData()
-      })
+      }
     }
   })
+}
+const confirmAlert = () => {
+    fetchData()
 }
 </script>
 <template>
   <div>
     <VRow>
       <VCol cols="6" xl="8" md="8" sm="6">
-        <VCard>
+        <VCard v-if="loadingBody">
+          <VCardText class="text-center">
+            <VProgressCircular
+              :size="60"
+              indeterminate
+              color="error"
+            />
+          </VCardText>
+        </VCard>
+        <VCard v-else>
           <VTable class="text-no-wrap">
             <tbody>
               <tr>
@@ -81,7 +112,16 @@ const kirimData = async () => {
         </VCard>
       </VCol>
       <VCol cols="6" xl="4" md="4" sm="6">
-        <VCard>
+        <VCard v-if="loadingBody">
+          <VCardText class="text-center">
+            <VProgressCircular
+              :size="60"
+              indeterminate
+              color="error"
+            />
+          </VCardText>
+        </VCard>
+        <VCard v-else>
           <VCardText class="text-center">
             <p>Pengiriman data terakhir dilakukan pada <br>
               <strong>{{ last_sync }}</strong>
@@ -94,7 +134,7 @@ const kirimData = async () => {
         </VCard>
       </VCol>
     </VRow>
-    <VRow>
+    <VRow v-if="!loadingBody">
       <VCol cols="12">
         <VAlert color="secondary" class="text-center">
           <h3 class="text-white">DATA YANG MENGALAMI PERUBAHAN</h3>
@@ -106,7 +146,16 @@ const kirimData = async () => {
     </VRow>
     <VRow>
       <VCol cols="12">
-        <VCard>
+        <VCard v-if="loadingBody">
+          <VCardText class="text-center">
+            <VProgressCircular
+              :size="60"
+              indeterminate
+              color="error"
+            />
+          </VCardText>
+        </VCard>
+        <VCard v-else>
           <VTable class="text-no-wrap">
             <thead>
               <tr>
@@ -170,5 +219,7 @@ const kirimData = async () => {
         </VCardText>
       </VCard>
     </VDialog>
+    <AlertDialog v-model:isDialogVisible="isAlertDialogVisible" :confirm-color="notif.color"
+            :confirm-title="notif.title" :confirm-msg="notif.text" @confirm="confirmAlert"></AlertDialog>
   </div>
 </template>

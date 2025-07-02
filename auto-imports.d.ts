@@ -7,6 +7,7 @@
 export {}
 declare global {
   const $api: typeof import('./resources/js/utils/api.js')['$api']
+  const $profilePhotoPath: typeof import('./resources/js/utils/mixins.js')['$profilePhotoPath']
   const $role: typeof import('./resources/js/utils/mixins.js')['$role']
   const $roles: typeof import('./resources/js/utils/mixins.js')['$roles']
   const $sekolah: typeof import('./resources/js/utils/mixins.js')['$sekolah']
@@ -372,6 +373,7 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly $api: UnwrapRef<typeof import('./resources/js/utils/api.js')['$api']>
+    readonly $profilePhotoPath: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$profilePhotoPath']>
     readonly $roles: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$roles']>
     readonly $sekolah: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$sekolah']>
     readonly $semester: UnwrapRef<typeof import('./resources/js/utils/mixins.js')['$semester']>

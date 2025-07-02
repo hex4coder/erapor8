@@ -13,8 +13,6 @@ use App\Models\Ptk;
 use App\Models\PtkKeluar;
 use App\Models\Jurusan;
 use App\Models\JurusanSp;
-use App\Models\Gelar;
-use App\Models\GelarPtk;
 use App\Models\RombonganBelajar;
 use App\Models\PesertaDidik;
 use App\Models\PdKeluar;
@@ -685,30 +683,6 @@ class Dapodik extends Command
         $response = Http::withBasicAuth('masadi', '@Bismill4h#')->post($server.'/dapodik', $data_sync);
         return $response->object();
     }
-    private function simpan_gelar($data){
-        $gelar = Gelar::find($data->gelar_akademik_id);
-        return $gelar;
-        if(!$gelar){
-            $data_sync = [
-                'server' => 'local',
-                'table_utama' => [
-                    'table' => 'ref.gelar_akademik',
-                    'primary_key' => 'gelar_akademik_id', 
-                ],
-                'table_join' => NULL, 
-                'satuan' => TRUE,
-                'select' => NULL,
-                'where' => [
-                    [
-                        'field' => 'gelar_akademik_id',
-                        'value' => $data->gelar_akademik_id,
-                    ]
-                ]
-            ];
-            $gelar = $this->ambil_referensi($data_sync);
-        }
-        return $gelar;
-    }
     private function simpan_guru($data, $user, $semester){
         if($data){
             $this->proses_wilayah($data->wilayah, TRUE);
@@ -755,25 +729,6 @@ class Dapodik extends Command
                     $gelar_ptk_id[] = $rwy_pend_formal->riwayat_pendidikan_formal_id;
                     $riwayat_pendidikan_formal_id = strtolower($rwy_pend_formal->riwayat_pendidikan_formal_id);
                     $ptk_id = $rwy_pend_formal->ptk_id;
-                    $gelar = $this->simpan_gelar($rwy_pend_formal);
-                    if($gelar){
-                        GelarPtk::withTrashed()->updateOrCreate(
-                            [
-                                'gelar_ptk_id' => $riwayat_pendidikan_formal_id,
-                            ],
-                            [
-                                'guru_id' => $rwy_pend_formal->ptk_id,
-                                'gelar_akademik_id' => $rwy_pend_formal->gelar_akademik_id,
-                                'sekolah_id' => $user->sekolah_id,
-                                'ptk_id' => $rwy_pend_formal->ptk_id,
-                                'deleted_at' => ($rwy_pend_formal->Soft_delete) ? now() : NULL,
-                                'last_sync' => Carbon::now()->subDays(30),
-                            ]
-                        );
-                    }
-                }
-                if($gelar_ptk_id){
-                    GelarPtk::where('ptk_id', $data->ptk_id)->whereNotIn('gelar_ptk_id', $gelar_ptk_id)->delete();
                 }
             }
             return $create_guru;

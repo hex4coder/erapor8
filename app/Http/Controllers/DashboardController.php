@@ -105,7 +105,21 @@ class DashboardController extends Controller
             ],
             ['status' => 1]
         );
-        $data = [
+         $tp = TujuanPembelajaran::where(function($query){
+            $query->whereHas('cp', function($query){
+               $query->whereHas('pembelajaran', function($query){
+                  $query->where('sekolah_id', request()->sekolah_id);
+                  $query->where('semester_id', request()->semester_id);
+               });
+            });
+            $query->orWhereHas('kd', function($query){
+                  $query->whereHas('pembelajaran', function($query){
+                  $query->where('sekolah_id', request()->sekolah_id);
+                  $query->where('semester_id', request()->semester_id);
+               });
+            });
+         })->count();
+         $data = [
             'sekolah' => $sekolah,
             'rekap' => [
                 [
@@ -131,20 +145,10 @@ class DashboardController extends Controller
                 ],
                 [
                 'data' => 'TP',
-                'jml' => TujuanPembelajaran::whereHas('cp', function($query){
-                    $query->whereHas('pembelajaran', function($query){
-                        $query->where('sekolah_id', request()->sekolah_id);
-                        $query->where('semester_id', request()->semester_id);
-                    });
-                })->orWhereHas('kd', function($query){
-                    $query->whereHas('pembelajaran', function($query){
-                        $query->where('sekolah_id', request()->sekolah_id);
-                        $query->where('semester_id', request()->semester_id);
-                    });
-                })->count(),
-                'icon' => 'spell-check',
-                'variant' => 'error',
-                'html' => 'Jumlah Tujuan Pembelajaran yang telah di input oleh PTK',
+                'jml' => $tp,
+                  'icon' => 'spell-check',
+                  'variant' => 'error',
+                  'html' => 'Jumlah Tujuan Pembelajaran yang telah di input oleh PTKa',
                 ],
                 [
                 'data' => 'Nilai Akhir',

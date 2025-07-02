@@ -2,7 +2,6 @@
 import { themeConfig } from '@themeConfig';
 import { useHead } from '@unhead/vue';
 import { Indonesian } from "flatpickr/dist/l10n/id.js";
-import Swal from 'sweetalert2';
 useHead({
   title: `Pengaturan Umum | ${themeConfig.app.title}`
 })
@@ -32,10 +31,13 @@ const data_semester = ref([])
 const data_guru = ref([])
 const data_rombel = ref([])
 const loadingBody = ref(true)
+const isAlertDialogVisible = ref(false)
+const notif = ref({
+    color: '',
+    title: '',
+    text: '',
+})
 const fetchData = async () => {
-  data_semester.value = []
-  data_guru.value = []
-  data_rombel.value = []
   try {
     const response = await useApi(createUrl('/setting', {
       query: {
@@ -43,21 +45,21 @@ const fetchData = async () => {
         semester_id: $semester.semester_id,
       },
     }))
-    let getData = response.data
-    data_semester.value = getData.value?.semester
-    data_guru.value = getData.value?.data_guru
-    data_rombel.value = getData.value?.data_rombel
-    form.value.semester_id = getData.value?.semester_id;
-    form.value.tanggal_rapor = getData.value?.tanggal_rapor
-    form.value.tanggal_rapor_kelas_akhir = getData.value?.tanggal_rapor_kelas_akhir
-    form.value.zona = getData.value?.zona
-    form.value.kepala_sekolah = getData.value?.kepala_sekolah
-    form.value.jabatan = getData.value?.jabatan
-    form.value.rombel_4_tahun = getData.value?.rombel_4_tahun
-    form.value.url_dapodik = getData.value?.url_dapodik
-    form.value.token_dapodik = getData.value?.token_dapodik
-    if (getData.value?.logo_sekolah) {
-      logo_sekolah.value = getData.value?.logo_sekolah
+    let getData = response.data.value
+    data_semester.value = getData.semester
+    data_guru.value = getData.data_guru
+    data_rombel.value = getData.data_rombel
+    form.value.semester_id = getData.semester_id;
+    form.value.tanggal_rapor = getData.tanggal_rapor
+    form.value.tanggal_rapor_kelas_akhir = getData.tanggal_rapor_kelas_akhir
+    form.value.zona = getData.zona
+    form.value.kepala_sekolah = getData.kepala_sekolah
+    form.value.jabatan = getData.jabatan
+    form.value.rombel_4_tahun = getData.rombel_4_tahun
+    form.value.url_dapodik = getData.url_dapodik
+    form.value.token_dapodik = getData.token_dapodik
+    if (getData.logo_sekolah) {
+      logo_sekolah.value = getData.logo_sekolah
     }
   } catch (error) {
     console.error(error);
@@ -111,18 +113,19 @@ const submitForm = async () => {
         logoError.value = true
         logoErrorMessage.value = getData.message
       } else {
-        Swal.fire({
-          icon: getData.icon,
+        isAlertDialogVisible.value = true
+        notif.value = {
+          color: getData.color,
           title: getData.title,
-          html: getData.text,
-        }).then(result => {
-          fetchData()
-          logo_sekolah.value = getData.logo_sekolah
-          form.value.file = null
-        })
+          text: getData.text,
+        }
       }
     }
   })
+}
+const confirmAlert = () => {
+    fetchData()
+    form.value.file = null
 }
 const dateConfig = ref({
   locale: Indonesian,
@@ -133,6 +136,8 @@ const dateConfig = ref({
 <template>
   <section>
     <VCard title="Pengaturan Umum">
+      <VCardText></VCardText>
+      <VDivider />
       <VCardText class="text-center" v-if="loadingBody">
         <VProgressCircular
           :size="60"
@@ -200,5 +205,7 @@ const dateConfig = ref({
         </VForm>
       </VCardText>
     </VCard>
+    <AlertDialog v-model:isDialogVisible="isAlertDialogVisible" :confirm-color="notif.color"
+            :confirm-title="notif.title" :confirm-msg="notif.text" @confirm="confirmAlert"></AlertDialog>
   </section>
 </template>

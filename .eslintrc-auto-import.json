@@ -365,6 +365,7 @@
     "$semester": true,
     "$role": true,
     "$sekolah": true,
-    "$roles": true
+    "$roles": true,
+    "$profilePhotoPath": true
   }
 }

@@ -1,4 +1,10 @@
 <script setup>
+import RombonganBelajar from '@/views/referensi/RombonganBelajar.vue';
+import { themeConfig } from '@themeConfig';
+import { useHead } from '@unhead/vue';
+useHead({
+  title: `Rombongan Belajar | ${themeConfig.app.title}`
+})
 definePage({
   meta: {
     action: 'read',
@@ -8,14 +14,10 @@ definePage({
 </script>
 <template>
   <div>
-    <VCard title="Create Awesome 🙌">
-      <VCardText>This is your second page.</VCardText>
-      <VCardText>
-        Chocolate sesame snaps pie carrot cake pastry pie lollipop muffin.
-        Carrot cake dragée chupa chups jujubes. Macaroon liquorice cookie
-        wafer tart marzipan bonbon. Gingerbread jelly-o dragée
-        chocolate.
-      </VCardText>
+    <VCard title="Data Rombongan Belajar">
+      <VCardText></VCardText>
+      <VDivider />
+      <RombonganBelajar :jenis-rombel="1"></RombonganBelajar>
     </VCard>
   </div>
 </template>

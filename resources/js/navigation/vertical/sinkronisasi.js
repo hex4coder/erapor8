@@ -4,7 +4,7 @@ export default [
     icon: 'arrows-rotate',
     children: [
       {
-        title: 'Tarik Dapodk',
+        title: 'Tarik Dapodik',
         to: 'sinkronisasi-dapodik',
         icon: 'download',
         action: 'read',

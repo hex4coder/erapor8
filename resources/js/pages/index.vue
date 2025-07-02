@@ -12,7 +12,6 @@ definePage({
     subject: 'Web',
   },
 })
-const userData = useCookie('userData')
 </script>
 
 <template>

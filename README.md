@@ -132,7 +132,7 @@ Sesuaikan dengan alamat/domain yang dipakai
 
 Kemudian tambah kode dibawah ini agar laman register tidak tersedia
 
-```REGISTRATION=false```
+```APP_REGISTRATION=false```
 
 ## Catatan khusus pengguna windows
 

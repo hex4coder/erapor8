@@ -1,11 +1,14 @@
 <script setup>
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
-const router = useRouter()
+import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 const ability = useAbility()
-
 // TODO: Get type from backend
 const userData = useCookie('userData')
-
+const bus = useEventBus('erapor');
+const profilePhotoPath = ref($profilePhotoPath)
+const listener = (event) => {
+  profilePhotoPath.value = event
+}
+bus.on(listener)
 const logout = async () => {
   await $api('/auth/logout', {
     method: 'GET',
@@ -18,10 +21,9 @@ const logout = async () => {
       useCookie('accessToken').value = null
       useCookie('languages').value = null
       useCookie('userData').value = null
-      //await router.push('/login')
       useCookie('userAbilityRules').value = null
+      useCookie('profilePhotoPath').value = null
       ability.update([])
-      //await router.push('/login')
       window.location.replace('/login')
     },
     onResponseError({ response }) {
@@ -46,7 +48,7 @@ const userProfileList = [
 <template>
   <VBadge dot location="bottom right" offset-x="3" offset-y="3" bordered color="success" v-if="userData">
     <VAvatar class="cursor-pointer" color="primary" variant="tonal">
-      <VImg :src="userData.profile_photo_path" />
+      <VImg :src="profilePhotoPath" />
 
       <!-- SECTION Menu -->
       <VMenu activator="parent" width="230" location="bottom end" offset="14px">
@@ -57,7 +59,7 @@ const userProfileList = [
               <VListItemAction start>
                 <VBadge dot location="bottom right" offset-x="3" offset-y="3" color="success">
                   <VAvatar color="primary" variant="tonal">
-                    <VImg :src="userData.profile_photo_path" />
+                    <VImg :src="profilePhotoPath" />
                   </VAvatar>
                 </VBadge>
               </VListItemAction>

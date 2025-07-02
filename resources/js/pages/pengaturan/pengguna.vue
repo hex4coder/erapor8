@@ -145,7 +145,6 @@ const permissions = ref([])
 const availableRoles = ref([])
 const detilUser = async (user_id) => {
   loadings.value[user_id] = true
-  console.log(user_id);
   await $api('/setting/detil-user', {
     method: 'POST',
     body: {
@@ -209,7 +208,6 @@ const notif = ref({
 })
 const role_guru = [7, 8, 9];
 const confirmDelete = async (val) => {
-  console.log('confirmDelete', val);
   if (val) {
     await $api('/setting/hapus-akses', {
       method: 'POST',
@@ -304,8 +302,7 @@ const confirmClose = (val) => {
           <div class="d-flex align-center gap-x-4">
             <VAvatar size="34" :variant="!item.profile_photo_path ? 'tonal' : undefined"
               :color="!item.profile_photo_path ? 'success' : undefined">
-              <VImg v-if="item.profile_photo_path" :src="item.profile_photo_path" />
-              <span v-else>{{ avatarText(item.name) }}</span>
+              <VImg :src="item.profile_photo_path" />
             </VAvatar>
             <div class="d-flex flex-column">
               <h6 class="text-base">{{ item.name }}</h6>

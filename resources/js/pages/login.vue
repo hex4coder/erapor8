@@ -2,11 +2,15 @@
 import { useGenerateImageVariant } from "@core/composable/useGenerateImageVariant";
 import authV2LoginIllustrationBorderedDark from "@images/pages/auth-v2-login-illustration-bordered-dark.png";
 import authV2LoginIllustrationBorderedLight from "@images/pages/auth-v2-login-illustration-bordered-light.png";
-import authV2LoginIllustrationDark from "@images/pages/auth-v2-login-illustration-dark.png";
-import authV2LoginIllustrationLight from "@images/pages/auth-v2-login-illustration-light.png";
+//import authV2LoginIllustrationDark from "@images/pages/auth-v2-login-illustration-dark.png";
+//import authV2LoginIllustrationLight from "@images/pages/auth-v2-login-illustration-light.png";
+import { default as authV2LoginIllustrationDark, default as authV2LoginIllustrationLight } from "@images/pages/bg_login.png";
 import authV2MaskDark from "@images/pages/misc-mask-dark.png";
 import authV2MaskLight from "@images/pages/misc-mask-light.png";
 import { themeConfig } from "@themeConfig";
+import { useHead } from '@unhead/vue';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 const authThemeImg = useGenerateImageVariant(
   authV2LoginIllustrationLight,
   authV2LoginIllustrationDark,
@@ -15,7 +19,9 @@ const authThemeImg = useGenerateImageVariant(
   true
 );
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
-
+useHead({
+  title: `Login | ${themeConfig.app.title}`
+})
 definePage({
   meta: {
     layout: "blank",
@@ -37,8 +43,19 @@ const errors = ref({
   email: undefined,
   password: undefined,
 });
-const rememberMe = ref(false);
 const isPasswordVisible = ref(false);
+const role = ref([])
+const namaUser = ref('')
+const notify = () => {
+  toast(
+    `<strong>Selamat Datang ${namaUser.value}</strong>
+    <br>Anda telah berhasil masuk sebagai <strong>${role.value}</strong>. Sekarang Anda dapat mulai berselancar di Aplikasi e-Rapor SMK!`, {
+    closeOnClick: false,
+    autoClose: 5000,
+    position: toast.POSITION.TOP_RIGHT,
+    dangerouslyHTMLString: true,
+  });
+}
 const login = async () => {
   try {
     const res = await $api("/auth/login", {
@@ -54,6 +71,7 @@ const login = async () => {
     });
 
     const { accessToken, userData, sekolah, semester, userAbility, roles } = res;
+    namaUser.value = userData.name
     useCookie("userAbilityRules").value = userAbility;
     ability.update(userAbility);
     useCookie("userData").value = userData;
@@ -61,8 +79,13 @@ const login = async () => {
     useCookie("sekolah").value = sekolah;
     useCookie("semester").value = semester;
     useCookie("roles").value = roles;
+    useCookie("profilePhotoPath").value = userData.profile_photo_path;
+    role.value = roles.join(', ')
+    
     await nextTick(() => {
-      router.replace(route.query.to ? String(route.query.to) : "/");
+      router.replace(route.query.to ? String(route.query.to) : "/").then(() => {
+        notify()
+      });
     });
   } catch (err) {
     console.error(err);
@@ -74,10 +97,22 @@ const onSubmit = () => {
     if (isValid) login();
   });
 };
-const { data: getData, execute: fetchData } = await useApi(createUrl("/auth/semester"));
-const data_semester = computed(() => getData.value.semester);
-const semesterId = ref(getData.value.semester_id);
-form.value.semester_id = semesterId.value;
+const allowRegister = ref(false)
+const data_semester = ref([])
+onMounted(async () => {
+  await fetchData();
+});
+const fetchData = async () => {
+  try {
+    const response = await useApi(createUrl('/auth/semester'))
+    let getData = response.data.value
+    data_semester.value = getData.semester
+    form.value.semester_id = getData.semester_id
+    allowRegister.value = getData.allowRegister
+  } catch (error) {
+    console.error(error);
+  }
+}
 </script>
 
 <template>
@@ -93,29 +128,17 @@ form.value.semester_id = semesterId.value;
   <VRow no-gutters class="auth-wrapper bg-surface">
     <VCol md="8" class="d-none d-md-flex">
       <div class="position-relative bg-background w-100 me-0">
-        <div
-          class="d-flex align-center justify-center w-100 h-100"
-          style="padding-inline: 6.25rem"
-        >
-          <VImg
-            max-width="613"
-            :src="authThemeImg"
-            class="auth-illustration mt-16 mb-2"
-          />
+        <div class="d-flex align-center justify-center w-100 h-100" style="padding-inline: 6.25rem">
+          <VImg max-width="613" :src="authThemeImg" class="auth-illustration mt-16 mb-2" />
         </div>
 
-        <img
-          class="auth-footer-mask flip-in-rtl"
-          :src="authThemeMask"
-          alt="auth-footer-mask"
-          height="280"
-          width="100"
-        />
+        <img class="auth-footer-mask flip-in-rtl" :src="authThemeMask" alt="auth-footer-mask" height="280"
+          width="100" />
       </div>
     </VCol>
 
     <VCol cols="12" md="4" class="auth-card-v2 d-flex align-center justify-center">
-      <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-6">
+      <VCard flat :max-width="500" class="mt-sm-0 pa-6">
         <VCardText class="text-center">
           <h1 class="text-h2 mb-1">
             <img :src="themeConfig.app.logo" height="28" /> {{ themeConfig.app.title }}
@@ -128,38 +151,20 @@ form.value.semester_id = semesterId.value;
             <VRow>
               <!-- email -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="form.email"
-                  :error-messages="errors.email"
-                  autofocus
-                  label="Email"
-                  type="email"
-                  placeholder="Email/NUPTK/NISN"
-                />
+                <AppTextField v-model="form.email" :error-messages="errors.email" autofocus label="Email/NUPTK/NISN"
+                  placeholder="Email/NUPTK/NISN" :rules="[requiredValidator]" />
               </VCol>
 
               <!-- password -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="form.password"
-                  :error-messages="errors.password"
-                  label="Password"
-                  placeholder="············"
-                  :type="isPasswordVisible ? 'text' : 'password'"
-                  autocomplete="password"
+                <AppTextField v-model="form.password" :error-messages="errors.password" label="Password"
+                  placeholder="············" :type="isPasswordVisible ? 'text' : 'password'" autocomplete="password"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                />
+                  @click:append-inner="isPasswordVisible = !isPasswordVisible" :rules="[requiredValidator]" />
               </VCol>
               <VCol cols="12">
-                <AppSelect
-                  :items="data_semester"
-                  item-title="nama"
-                  item-value="semester_id"
-                  label="Tahun Pelajaran"
-                  v-model="form.semester_id"
-                  placeholder="Select Item"
-                />
+                <AppSelect :items="data_semester" item-title="nama" item-value="semester_id" label="Tahun Pelajaran"
+                  v-model="form.semester_id" placeholder="Select Item" />
                 <div class="d-flex align-center flex-wrap justify-space-between my-6">
                   <VCheckbox v-model="form.remember" label="Simpan Login" />
                   <a class="text-primary" href="javascript:void(0)"> Lupa Password? </a>
@@ -167,9 +172,16 @@ form.value.semester_id = semesterId.value;
 
                 <VBtn block type="submit"> Login </VBtn>
               </VCol>
+              <VCol cols="12" class="text-center" v-if="allowRegister">
+                <span>Pengguna Baru?</span>
+                <RouterLink class="text-primary ms-1" :to="{ name: 'register' }">
+                  Register Disini
+                </RouterLink>
+              </VCol>
             </VRow>
           </VForm>
         </VCardText>
+        <VCardText></VCardText>
       </VCard>
     </VCol>
   </VRow>

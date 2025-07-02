@@ -39,4 +39,8 @@ class RombonganBelajar extends Model
 	{
 		return $this->belongsTo(Kurikulum::class, 'kurikulum_id', 'kurikulum_id');
 	}
+	public function jurusan_sp()
+	{
+		return $this->belongsTo(JurusanSp::class, 'jurusan_sp_id', 'jurusan_sp_id');
+	}
 }
