@@ -43,7 +43,7 @@ class Register extends Command
             $this->info('Proses registrasi aplikasi...');
             $response = Http::withOptions([
                 'verify' => false,
-            ])->retry(3, 100)->post('http://sync.erapor-smk.net/api/v7/register', [
+            ])->retry(3, 100)->post('http://sync.erapor-smk.net/api/v8/register', [
                 'npsn' => $npsn,
                 'email' => $email,
                 'password' => $password,

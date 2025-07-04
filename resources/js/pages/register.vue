@@ -24,6 +24,7 @@ onBeforeMount(async () => {
   await fetchData();
 })
 const loadingBody = ref(true)
+const loadingButton = ref(false)
 const fetchData = async () => {
   try {
     const response = await useApi(createUrl('/auth/allow-register'));
@@ -66,6 +67,7 @@ const notify = () => {
   });
 }
 const register = async () => {
+  loadingButton.value = true
   try {
     const res = await $api("/auth/register", {
       method: "POST",
@@ -76,14 +78,17 @@ const register = async () => {
       },
       onResponseError({ response }) {
         failed.value = response._data.errors;
+        loadingButton.value = false
       },
     });
     const { error, errors, message } = res;
     if (error) {
+      loadingButton.value = false
       failed.value.npsn = errors.npsn?.join(', ')
       failed.value.email = errors.email?.join(', ')
       failed.value.password = errors.password?.join(', ')
     } else {
+      loadingButton.value = false
       await nextTick(() => {
         router.replace('/login').then(() => {
           notify()
@@ -161,7 +166,7 @@ const onSubmit = () => {
                   required />
 
 
-                <VBtn block type="submit" class="mt-6">
+                <VBtn block type="submit" class="mt-6" :loading="loadingButton" :disabled="loadingButton">
                   Register
                 </VBtn>
               </VCol>

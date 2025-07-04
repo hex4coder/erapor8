@@ -1,5 +1,9 @@
 <script setup>
 const props = defineProps({
+    cardTitle: {
+        type: String,
+        required: true,
+    },
     jenisRombel: {
         type: Number,
         required: true,
@@ -166,6 +170,10 @@ const savePembelajaran = async () => {
 </script>
 <template>
     <VCard>
+        <VCardItem class="pb-4">
+            <VCardTitle>{{ props.cardTitle }}</VCardTitle>
+        </VCardItem>
+        <VDivider />
         <VCardText class="d-flex flex-wrap gap-4">
             <div class="d-flex gap-2 align-center">
                 <AppSelect v-model="options.itemsPerPage" :items="[

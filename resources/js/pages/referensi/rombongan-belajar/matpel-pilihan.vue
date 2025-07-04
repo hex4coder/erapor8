@@ -9,10 +9,5 @@ definePage({
 })
 </script>
 <template>
-  <div>
-    <VCard title="Rombel Matpel Pilihan">
-      <VDivider />
-      <RombonganBelajar :jenis-rombel="16"></RombonganBelajar>
-    </VCard>
-  </div>
+  <RombonganBelajar :jenis-rombel="16" card-title="Rombel Matpel Pilihan"></RombonganBelajar>
 </template>

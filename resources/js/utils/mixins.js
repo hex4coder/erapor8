@@ -26,3 +26,17 @@ export const tingkatKelas = [
         value: 13,
     },
 ]
+export const dataKompetensi = [
+    {
+        value: 1,
+        title: 'Pengetahuan',
+    },
+    {
+        value: 2,
+        title: 'Keterampilan',
+    },
+    {
+        value: 3,
+        title: 'Pusat Keunggulan',
+    },
+]

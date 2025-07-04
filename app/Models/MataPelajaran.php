@@ -14,4 +14,8 @@ class MataPelajaran extends Model
 	{
 		return $this->hasMany(Pembelajaran::class, 'mata_pelajaran_id', 'mata_pelajaran_id');
 	}
+	public function kompetensi_dasar()
+	{
+		return $this->hasMany(KompetensiDasar::class, 'mata_pelajaran_id', 'mata_pelajaran_id');
+	}
 }

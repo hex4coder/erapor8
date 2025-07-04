@@ -366,6 +366,8 @@
     "$sekolah": true,
     "$semester": true,
     "$user": true,
-    "tingkatKelas": true
+    "tingkatKelas": true,
+    "data_kompetensi": true,
+    "dataKompetensi": true
   }
 }

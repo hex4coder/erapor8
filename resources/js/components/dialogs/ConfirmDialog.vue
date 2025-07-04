@@ -90,7 +90,7 @@ const closeConfirm = () => {
   </VDialog>
 
   <!-- confirmed -->
-  <VDialog v-model="confirmed" width="300">
+  <VDialog v-model="confirmed" persistent width="300">
     <VCard color="primary" width="300">
       <VCardText class="pt-3">
         Mohon menunggu...

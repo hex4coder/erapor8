@@ -53,6 +53,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('update-akses', [SettingController::class, 'update_akses']);
         Route::post('generate-pengguna', [SettingController::class, 'generate_pengguna']);
         Route::post('reset-bg', [SettingController::class, 'reset_bg']);
+        Route::get('/unduhan', [SettingController::class, 'unduhan']);
+        Route::get('/changelog', [SettingController::class, 'changelog']);
+        Route::get('/check-update', [SettingController::class, 'check_update']);
+        Route::post('/proses-update', [SettingController::class, 'proses_update']);
     });
     Route::group(['prefix' => 'referensi'], function () {
         Route::group(['prefix' => 'ptk'], function () {
@@ -81,6 +85,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             Route::get('/', [ReferensiController::class, 'dudi']);
             Route::post('/detil-dudi', [ReferensiController::class, 'detil_dudi']);
             Route::post('/anggota-prakerin', [ReferensiController::class, 'anggota_prakerin']);
+        });
+        Route::group(['prefix' => 'get-data'], function () {
+            Route::post('/', [ReferensiController::class, 'get_data']);
+        });
+        Route::group(['prefix' => 'kompetensi-dasar'], function () {
+            Route::get('/', [ReferensiController::class, 'kompetensi_dasar']);
+            Route::post('/save', [ReferensiController::class, 'save_kd']);
+            Route::post('/update', [ReferensiController::class, 'update']);
         });
     });
 });

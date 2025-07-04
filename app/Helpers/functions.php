@@ -209,3 +209,6 @@ function get_string_between($string, $start, $end){
     $len = strpos($string, $end, $ini) - $ini;
     return substr($string, $ini, $len);
 }
+function hasRole($roles, $team){
+    return auth()->user()->hasRole($roles, $team);
+}

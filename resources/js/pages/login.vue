@@ -53,7 +53,9 @@ const notify = () => {
     dangerouslyHTMLString: true,
   });
 }
+const loadingButton = ref(false)
 const login = async () => {
+  loadingButton.value = true
   try {
     const res = await $api("/auth/login", {
       method: "POST",
@@ -64,6 +66,7 @@ const login = async () => {
       },
       onResponseError({ response }) {
         errors.value = response._data.errors;
+        loadingButton.value = false
       },
     });
 
@@ -78,7 +81,7 @@ const login = async () => {
     useCookie("roles").value = roles;
     useCookie("profilePhotoPath").value = userData.profile_photo_path;
     role.value = roles.join(', ')
-
+    loadingButton.value = false
     await nextTick(() => {
       router.replace(route.query.to ? String(route.query.to) : "/").then(() => {
         notify()
@@ -170,7 +173,7 @@ const fetchData = async () => {
                   <a class="text-primary" href="javascript:void(0)"> Lupa Password? </a>
                 </div>
 
-                <VBtn block type="submit"> Login </VBtn>
+                <VBtn block type="submit" :loading="loadingButton" :disabled="loadingButton"> Login </VBtn>
               </VCol>
               <VCol cols="12" class="text-center" v-if="allowRegister">
                 <span>Pengguna Baru?</span>

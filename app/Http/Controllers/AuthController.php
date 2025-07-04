@@ -50,7 +50,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => $request->password,
             ];
-            $response = Http::post('http://sync.erapor-smk.net/api/v7/register', $data_sync);
+            $response = Http::post('http://sync.erapor-smk.net/api/v8/register', $data_sync);
             $data = $response->object();
             if($response->successful()){
                 return $this->create_user($data, $request->email, $request->password);
@@ -90,6 +90,9 @@ class AuthController extends Controller
         if(!Auth::attempt($credentials)){
             return response()->json([
                 'user' => NULL,
+                'errors' => [
+                    'password' => ['Password salah!'],
+                ],
                 'message' => [
                     'password' => 'Password salah!',
                 ]

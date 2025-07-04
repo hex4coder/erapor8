@@ -34,8 +34,8 @@ class Update extends Command
     public function handle()
     {
         $win = Str::contains(php_uname('s'), 'Windows');
-        $mac = Str::contains(php_uname('s'), 'Windows');
-        $linux = Str::contains(php_uname('s'), 'Windows');
+        $mac = Str::contains(php_uname('s'), 'Darwin');
+        $linux = Str::contains(php_uname('s'), 'Linux');
         $this->call('storage:unlink');
         if($win){
             exec('rmdir /s /q '.public_path('storage'));
