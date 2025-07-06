@@ -19,6 +19,11 @@ const props = defineProps({
     type: String,
     default: '90%',
   },
+  isSubmitBtn: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 const confirmed = ref(false)
 const emit = defineEmits([
@@ -48,26 +53,28 @@ watch(props, () => {
   <VDialog scrollable content-class="scrollable-dialog" :max-width="props.dialogWith"
     :model-value="props.isDialogVisible" @update:model-value="onCancel">
     <DialogCloseBtn @click="onCancel" />
-    <VCard>
+    <VCard style="position: relative;">
       <VCardItem class="pb-5">
         <VCardTitle>{{ props.dialogTitle }}</VCardTitle>
       </VCardItem>
       <VDivider />
-      <VCardText style="position: relative;">
+      <VCardText style="overflow-y: visible;">
         <slot name="content" />
-        <v-overlay v-model="confirmed" contained persistent scroll-strategy="none" class="align-center justify-center">
-          <v-progress-circular color="primary" size="64" indeterminate></v-progress-circular>
-        </v-overlay>
       </VCardText>
+      <slot name="table" />
       <VDivider />
       <VCardText class="d-flex justify-end flex-wrap gap-3 pt-5 overflow-visible">
         <VBtn color="secondary" variant="tonal" @click="onCancel" :loading="confirmed" :disabled="confirmed">
-          Batal
+          Tutup
         </VBtn>
-        <VBtn variant="elevated" @click="onConfirmation" :loading="confirmed" :disabled="confirmed">
+        <VBtn variant="elevated" @click="onConfirmation" :loading="confirmed" :disabled="confirmed"
+          v-if="props.isSubmitBtn">
           Simpan
         </VBtn>
       </VCardText>
+      <v-overlay v-model="confirmed" contained persistent scroll-strategy="none" class="align-center justify-center">
+        <v-progress-circular color="primary" size="64" indeterminate></v-progress-circular>
+      </v-overlay>
     </VCard>
   </VDialog>
 </template>

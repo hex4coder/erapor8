@@ -108,5 +108,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             Route::get('/', [ReferensiController::class, 'bobot_penilaian']);
             Route::post('/', [ReferensiController::class, 'bobot_penilaian']);
         });
+        Route::group(['prefix' => 'ukk'], function () {
+            Route::get('/', [ReferensiController::class, 'ukk']);
+            Route::post('/update', [ReferensiController::class, 'update_ukk']);
+            Route::post('/save', [ReferensiController::class, 'save_ukk']);
+        });
     });
 });

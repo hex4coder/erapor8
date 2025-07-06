@@ -17,6 +17,8 @@ use App\Models\TujuanPembelajaran;
 use App\Models\TpMapel;
 use App\Models\JurusanSp;
 use App\Models\Kurikulum;
+use App\Models\PaketUkk;
+use App\Models\UnitUkk;
 use App\Imports\TemplateTp;
 use Storage;
 
@@ -791,6 +793,137 @@ class ReferensiController extends Controller
             ];
         } else {
             $data = Pembelajaran::with('rombongan_belajar')->where($this->kondisiPembelajaran())->orderBy('mata_pelajaran_id', 'asc')->get();
+        }
+        return response()->json($data);
+    }
+    public function ukk(){
+        $data = PaketUkk::where(function($query){
+            $query->where('sekolah_id', request()->sekolah_id);
+        })->with(['kurikulum', 'jurusan', 'unit_ukk'])->withCount([
+            'unit_ukk',
+            'rencana_ukk' => function($query){
+                $query->whereHas('nilai_ukk', function($query){
+                    $query->where('nilai', '>', 0);
+                });
+            }
+        ])
+        ->orderBy('jurusan_id', 'asc')
+        ->orderBy('kurikulum_id', 'asc')
+        ->orderBy('nomor_paket', 'asc')
+        ->when(request()->q, function($query) {
+            $query->where('nama_paket_id', 'ILIKE', '%' . request()->q . '%');
+        })
+        ->paginate(request()->per_page);
+        return response()->json(['status' => 'success', 'data' => $data]);
+    }
+    public function update_ukk(){
+        $insert = 0;
+        $text = 'Data Paket UKK berhasil diperbaharui';
+        $find = PaketUkk::find(request()->paket_ukk_id);
+        if(request()->data == 'status'){
+            $find->status = (request()->status) ? 0 : 1;
+            $text = (request()->status) ? 'Data Paket UKK berhasil di non aktifkan!' : 'Data Paket UKK berhasil di aktifkan!';
+            $insert = $find->save();
+        }
+        if(request()->data == 'hapus'){
+            $insert = 1;
+            if(request()->paket_ukk_id){
+                $text = 'Data Paket UKK berhasil dihapus!';
+                PaketUkk::where('paket_ukk_id', request()->paket_ukk_id)->delete();
+            }
+            if(request()->unit_ukk_id){
+                UnitUkk::where('unit_ukk_id', request()->unit_ukk_id)->delete();
+                $text = 'Data Unit UKK berhasil dihapus!';
+            }
+        }
+        if($insert){
+            $data = [
+                'color' => 'success',
+                'title' => 'Berhasil!',
+                'text' => $text,
+            ];
+        } else {
+            $data = [
+                'color' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Data Paket UKK gagal diperbaharui. Silahkan coba beberapa saat lagi!',
+            ];
+        }
+        return response()->json($data);
+    }
+    public function save_ukk(){
+        $insert = 0;
+        $text = 'Data Paket UKK';
+        if(request()->data == 'add'){
+           request()->validate(
+                [
+                    'jurusan_id' => 'required',
+                    'kurikulum_id' => 'required',
+                ],
+                [
+                    'jurusan_id.required' => 'Kompetensi Keahlian tidak boleh kosong!!',
+                    'kurikulum_id.required' => 'Kurikulum tidak boleh kosong!!',
+                ]
+            );
+            foreach(request()->nomor_paket as $key => $nomor_paket){
+                $insert = PaketUkk::create([
+                    'paket_ukk_id'      => Str::uuid(),
+                    'sekolah_id'        => request()->sekolah_id,
+                    'jurusan_id'		=> request()->jurusan_id,
+                    'kurikulum_id'		=> request()->kurikulum_id,
+                    'kode_kompetensi'	=> request()->kurikulum_id,
+                    'nomor_paket'		=> $nomor_paket,
+                    'nama_paket_id'		=> request()->nama_paket_id[$key],
+                    'nama_paket_en'		=> request()->nama_paket_en[$key],
+                    'status'			=> request()->status[$key],
+                    'last_sync'			=> now(),
+                ]);
+            }
+        }
+        if(request()->data == 'add_unit'){
+            $text = 'Unit UKK berhasil disimpan';
+            foreach(request()->kode_unit as $key => $kode_unit){
+                $insert++;
+                UnitUkk::create([
+                    'unit_ukk_id'   => Str::uuid(),
+                    'paket_ukk_id' 	=> request()->paket_ukk_id,
+                    'kode_unit'		=> $kode_unit,
+                    'nama_unit_id'		=> request()->nama_unit_id[$key],
+                    'nama_unit_en'		=> request()->nama_unit_en[$key],
+                    'last_sync'		=> now(),
+                ]);
+            }
+        }
+        if(request()->data == 'edit'){
+            $find = PaketUkk::find(request()->paket_ukk_id);
+            $find->nomor_paket = request()->nomor_paket;
+            $find->nama_paket_id = request()->nama_paket_id;
+            $find->nama_paket_en = request()->nama_paket_en;
+            $find->status = request()->status;
+            if($find->save()){
+                $insert = 1;
+                $text = 'Paket UKK berhasil diperbaharui';
+                foreach(request()->unit_ukk as $unit){
+                    UnitUkk::where('unit_ukk_id', $unit['unit_ukk_id'])->update([
+                        'kode_unit'		=> $unit['kode_unit'],
+                        'nama_unit_id'		=> $unit['nama_unit_id'],
+                        'nama_unit_en'		=> $unit['nama_unit_en'],
+                    ]);
+                }
+            }
+        }
+        if($insert){
+            $data = [
+                'color' => 'success',
+                'title' => 'Berhasil!',
+                'text' => $text,
+            ];
+        } else {
+            $data = [
+                'color' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Aksi gagal disimpan. Silahkan coba beberapa saat lagi!',
+            ];
         }
         return response()->json($data);
     }

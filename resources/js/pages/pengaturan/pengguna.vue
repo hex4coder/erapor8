@@ -93,7 +93,7 @@ const fetchData = async () => {
   } finally {
     loadingTable.value = false;
   }
-};
+}
 const selectedRoles = ref([])
 const allRoles = (roles) => {
   var names = roles.map((a) => a.display_name);
