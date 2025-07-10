@@ -409,7 +409,7 @@ const changeFormRombel = async (val) => {
         <template #item.actions="{ item }">
           <IconBtn @click="edit(item)">
             <VTooltip activator="parent" location="top">
-              Ubah Ringkat
+              Ubah Ringkasan
             </VTooltip>
             <VIcon icon="tabler-pencil" />
           </IconBtn>

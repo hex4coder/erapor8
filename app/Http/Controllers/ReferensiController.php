@@ -20,6 +20,9 @@ use App\Models\Kurikulum;
 use App\Models\PaketUkk;
 use App\Models\UnitUkk;
 use App\Models\TeknikPenilaian;
+use App\Models\BudayaKerja;
+use App\Models\NilaiBudayaKerja;
+use App\Models\ElemenBudayaKerja;
 use App\Imports\TemplateTp;
 use Storage;
 
@@ -369,6 +372,103 @@ class ReferensiController extends Controller
         }
         if(request()->data == 'teknik'){
             $data = TeknikPenilaian::where('kompetensi_id', 4)->get();
+        }
+        if(request()->data == 'siswa'){
+            $siswa = PesertaDidik::withWhereHas('anggota_rombel', function($query){
+                $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+            })->orderBy('nama')->get();
+            $merdeka = FALSE;
+            $rombel = NULL;
+            if(request()->aksi == 'cetak-rapor'){
+                $rombel = RombonganBelajar::find(request()->rombongan_belajar_id);
+                $merdeka = Str::of($rombel->kurikulum->nama_kurikulum)->contains('Merdeka');
+            }
+            $data = [
+                'data_siswa' => $siswa,
+                'merdeka' => $merdeka,
+                'rapor_pts' => config('erapor.rapor_pts'),
+                'is_ppa' => ($rombel) ? is_ppa($rombel->semester_id) : false,
+            ];
+        }
+        if(request()->data == 'elemen'){
+            $getData = ElemenBudayaKerja::where('budaya_kerja_id', request()->budaya_kerja_id)->get()->unique('elemen');
+            $data = $getData->values()->all();
+        }
+        if(request()->data == 'ekstrakurikuler'){
+            $data = [
+                'data_ekskul' => Ekstrakurikuler::where('guru_id', request()->guru_id)->where('semester_id', request()->semester_id)->get(),
+                'data_nilai' => collect([
+                    [
+                        'value' => 1,
+                        'title' => 'Sangat Baik'
+                    ],
+                    [
+                        'value' => 2,
+                        'title' => 'Baik',
+                    ],
+                    [
+                        'value' => 3,
+                        'title' => 'Cukup',
+                    ],
+                    [
+                        'value' => 4,
+                        'title' => 'Kurang',
+                    ],
+                ]),
+            ];
+        }
+        if(request()->data == 'reguler'){
+            $data = [
+                'ekstrakurikuler' => Ekstrakurikuler::where('rombongan_belajar_id', request()->rombongan_belajar_id)->first(),
+                'reguler' => RombonganBelajar::where(function($query){
+                    $query->whereHas('anggota_rombel', function($query){
+                        $query->whereHas('anggota_ekskul', function($query){
+                            $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+                        });
+                    });
+                    $query->where('semester_id', request()->semester_id);
+                    $query->where('jenis_rombel', 1);
+                })->orderBy('tingkat', 'ASC')->orderBy('kurikulum_id', 'ASC')->get()
+            ];
+        }
+        if(request()->data == 'kelas'){
+            $data = [
+                'rombel' => RombonganBelajar::find(request()->rombel_id_reguler)?->nama,
+                'siswa' => PesertaDidik::where(function($query){
+                    if(request()->rombel_id_reguler){
+                        $query->whereHas('anggota_rombel', function($query){
+                            $query->where('rombongan_belajar_id', request()->rombel_id_reguler);
+                        });
+                        $query->whereIn('peserta_didik_id', function($query){
+                            $query->select('peserta_didik_id')->from('anggota_rombel')->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+                        });
+                    } else {
+                        $query->whereHas('anggota_ekskul', function($query){
+                            $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+                        });
+                        $query->whereHas('kelas', function($query){
+                            $query->where('rombongan_belajar.semester_id', request()->semester_id);
+                            $query->where('jenis_rombel', 1);
+                        });
+                    }
+                })
+                ->withWhereHas('anggota_ekskul', function($query){
+                    $query->withWhereHas('rombongan_belajar', function($query){
+                        $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+                    });
+                    $query->with(['single_nilai_ekstrakurikuler' => function($query){
+                        $query->whereHas('ekstrakurikuler', function($query){
+                            $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+                        });
+                    }]);
+                })
+                ->with([
+                    'kelas' => function($query){
+                        $query->where('rombongan_belajar.semester_id', request()->semester_id);
+                        $query->where('jenis_rombel', 1);
+                    },
+                ])->orderBy('nama')->get(),
+            ];
         }
         return response()->json($data);
     }
@@ -929,6 +1029,22 @@ class ReferensiController extends Controller
                 'text' => 'Aksi gagal disimpan. Silahkan coba beberapa saat lagi!',
             ];
         }
+        return response()->json($data);
+    }
+    public function sikap(){
+        $data = [
+            'data' => BudayaKerja::with(['elemen_budaya_kerja'])->get(),
+            'kurtilas' => RombonganBelajar::where(function($query){
+                $query->whereHas('kurikulum', function($query){
+                    $query->where('nama_kurikulum', 'ILIKE', '%2013%');
+                });
+                $query->where('semester_id', request()->semester_id);
+                $query->where('sekolah_id', request()->sekolah_id);
+            })->first(),
+            'nilai_budaya_kerja' => NilaiBudayaKerja::with(['anggota_rombel' => function($query){
+                $query->with(['rombongan_belajar', 'peserta_didik']);
+            }])->find(request()->nilai_budaya_kerja_id),
+        ];
         return response()->json($data);
     }
 }

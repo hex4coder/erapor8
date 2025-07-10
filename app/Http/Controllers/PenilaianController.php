@@ -12,6 +12,10 @@ use App\Models\NilaiSumatif;
 use App\Models\Pembelajaran;
 use App\Models\NilaiAkhir;
 use App\Models\TpNilai;
+use App\Models\DeskripsiMataPelajaran;
+use App\Models\NilaiBudayaKerja;
+use App\Models\RombonganBelajar;
+use App\Models\NilaiEkstrakurikuler;
 use Carbon\Carbon;
 
 class PenilaianController extends Controller
@@ -169,6 +173,95 @@ class PenilaianController extends Controller
                 }
             }
         }
+        if(request()->opsi == 'capaian-kompetensi'){
+            $text = 'Capaian Kompetensi';
+            foreach(request()->angka as $anggota_rombel_id => $nilai_akhir){
+                if(request()->kompeten[$anggota_rombel_id] || request()->inkompeten[$anggota_rombel_id]){
+                    $insert++;
+                    DeskripsiMataPelajaran::updateOrCreate(
+                        [
+                            'sekolah_id' => request()->sekolah_id,
+                            'anggota_rombel_id' => $anggota_rombel_id,
+                            'pembelajaran_id' => request()->pembelajaran_id,
+                        ],
+                        [
+                            'deskripsi_pengetahuan' => request()->kompeten[$anggota_rombel_id],
+                            'deskripsi_keterampilan' => request()->inkompeten[$anggota_rombel_id],
+                            'last_sync' => now(),
+                        ]
+                    );
+                } else {
+                    DeskripsiMataPelajaran::where('anggota_rombel_id', $anggota_rombel_id)->where('pembelajaran_id', request()->pembelajaran_id)->delete();
+                }
+            }
+        }
+        if(request()->opsi == 'reset-kompetensi'){
+            $text = 'Capaian Kompetensi';
+            $insert = DeskripsiMataPelajaran::where('pembelajaran_id', request()->pembelajaran_id)->delete();
+        }
+        if(request()->opsi == 'nilai-sikap'){
+            $text = 'Nilai Sikap';
+            request()->validate(
+                [
+                    'tingkat' => 'required_if:nilai_budaya_kerja_id,null',
+                    'rombongan_belajar_id' => 'required_if:nilai_budaya_kerja_id,null',
+                    'peserta_didik_id' => 'required_if:nilai_budaya_kerja_id,null',
+                    'tingkat' => 'required_if:nilai_budaya_kerja_id,null',
+                    'tanggal' => 'required',
+                    'budaya_kerja_id' => 'required',
+                    'elemen_id' => 'required',
+                    'opsi_sikap' => 'required',
+                    'uraian_sikap' => 'required',
+                ],
+                [
+                    'tingkat.required_if' => 'Tingkat Kelas tidak boleh kosong!',
+                    'rombongan_belajar_id.required_if' => 'Rombongan Belajar tidak boleh kosong!',
+                    'peserta_didik_id.required_if' => 'Peserta Didik tidak boleh kosong!',
+                    'tanggal.required' => 'Tanggal tidak boleh kosong!',
+                    'budaya_kerja_id.required' => 'Dimensi Sikap tidak boleh kosong!',
+                    'elemen_id.required' => 'Elemen Sikap tidak boleh kosong!',
+                    'opsi_sikap.required' => 'Opsi Sikap tidak boleh kosong!',
+                    'uraian_sikap.required' => 'Uraian Sikap tidak boleh kosong!',
+                ]
+            );
+            $find = new NilaiBudayaKerja;
+            if(request()->nilai_budaya_kerja_id){
+                $find = $find->find(request()->nilai_budaya_kerja_id);
+            } else {
+                $find->sekolah_id = request()->sekolah_id;
+                $find->guru_id = request()->guru_id;
+                $find->anggota_rombel_id = request()->anggota_rombel_id;
+                $find->last_sync = now();
+            }
+            $find->tanggal = request()->tanggal;
+            $find->budaya_kerja_id = request()->budaya_kerja_id;
+            $find->elemen_id = request()->elemen_id;
+            $find->opsi_id = request()->opsi_sikap;
+            $find->deskripsi = request()->uraian_sikap;
+            $insert = $find->save();
+        }
+        if(request()->opsi == 'nilai-ekskul'){
+            $text = 'Nilai Ekstrakurikuler';
+            foreach(request()->nilai_ekskul as $anggota_rombel_id => $nilai){
+                $insert++;
+                if($nilai){
+                    NilaiEkstrakurikuler::updateOrCreate(
+                        [
+                            'anggota_rombel_id' => $anggota_rombel_id,
+                            'sekolah_id' => request()->sekolah_id,
+                            'ekstrakurikuler_id' => request()->ekstrakurikuler_id,
+                        ],
+                        [
+                            'nilai' => $nilai,
+                            'deskripsi_ekskul' => request()->deskripsi_ekskul[$anggota_rombel_id],
+                            'last_sync' => now(),
+                        ]
+                    );
+                } else {
+                    NilaiEkstrakurikuler::where('anggota_rombel_id', $anggota_rombel_id)->where('ekstrakurikuler_id', request()->ekstrakurikuler_id)->delete();
+                }
+            }
+        }
         if($insert){
             $data = [
                 'color' => 'success',
@@ -185,20 +278,56 @@ class PenilaianController extends Controller
         }
         return response()->json($data);
     }
-    private function wherehas($query, $mata_pelajaran_id){
+    public function destroy(){
+        $deleted = FALSE;
+        $text = 'Unknow';
+        if(request()->data == 'nilai-sikap'){
+            $text = 'Nilai Sikap';
+            $deleted = NilaiBudayaKerja::where('nilai_budaya_kerja_id', request()->id)->delete();
+        }
+        if(request()->data == 'nilai-ekskul'){
+            $text = 'Nilai Ekstrakurikuler';
+            $deleted = NilaiEkstrakurikuler::where(function($query){
+                $query->where('ekstrakurikuler_id', request()->ekstrakurikuler_id);
+                if(request()->rombel_id_reguler){
+                    $query->whereHas('peserta_didik', function($query){
+                        $query->whereHas('anggota_rombel', function($query){
+                            $query->where('rombongan_belajar_id', request()->rombel_id_reguler);
+                        });
+                    });
+                }
+            })->delete();
+        }
+        if($deleted){
+            $data = [
+                'color' => 'success',
+                'title' => 'Berhasil!',
+                'text' => $text.' berhasil dihapus',
+                'request' => request()->all(),
+            ];
+        } else {
+            $data = [
+                'color' => 'error',
+                'title' => 'Gagal!',
+                'text' => $text.' gagal dihapus. Silahkan coba beberapa saat lagi!',
+            ];
+        }
+        return response()->json($data);
+    }
+    private function wherehas($query){
         if(request()->merdeka){
-            $query->whereHas('tp', function($query) use ($mata_pelajaran_id){
-                $query->whereHas('cp', function($query) use ($mata_pelajaran_id){
-                    $query->whereHas('pembelajaran', function($query) use ($mata_pelajaran_id){
-                        $query->where('mata_pelajaran_id', $mata_pelajaran_id);
+            $query->whereHas('tp', function($query){
+                $query->whereHas('cp', function($query){
+                    $query->whereHas('pembelajaran', function($query){
+                        $query->where('mata_pelajaran_id', request()->mata_pelajaran_id);
                         $query->where($this->kondisiPembelajaran());
                     });
                 });
             });
         } else {
-            $query->whereHas('kd', function($query) use ($mata_pelajaran_id){
-                $query->whereHas('pembelajaran', function($query) use ($mata_pelajaran_id){
-                    $query->where('mata_pelajaran_id', $mata_pelajaran_id);
+            $query->whereHas('kd', function($query){
+                $query->whereHas('pembelajaran', function($query){
+                    $query->where('mata_pelajaran_id', request()->mata_pelajaran_id);
                     $query->where($this->kondisiPembelajaran());
                 });
             });
@@ -228,7 +357,7 @@ class PenilaianController extends Controller
         $get_mapel_agama = filter_agama_siswa(request()->pembelajaran_id, request()->rombongan_belajar_id);
         $pembelajaran = Pembelajaran::find(request()->pembelajaran_id);
         $kompetensi_id = (request()->merdeka) ? 4 : 1;
-        if($pembelajaran->mata_pelajaran_id !='800001000'){
+        if(request()->mata_pelajaran_id !='800001000'){
             $sub_mapel = Pembelajaran::where(function($query){
                 $query->where('induk_pembelajaran_id', request()->pembelajaran_id);
                 $query->whereNotNull('kelompok_id');
@@ -245,14 +374,14 @@ class PenilaianController extends Controller
         })->withWhereHas('anggota_rombel', function($query) use ($kompetensi_id, $pembelajaran){
             $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
             $query->with([
-                'capaian_kompeten' => function($query) use ($pembelajaran){
-                    $this->wherehas($query, $pembelajaran->mata_pelajaran_id);
+                'capaian_kompeten' => function($query){
+                    $this->wherehas($query);
                 },
-                'tp_kompeten' => function($query) use ($pembelajaran){
-                    $this->wherehas($query, $pembelajaran->mata_pelajaran_id);
+                'tp_kompeten' => function($query){
+                    $this->wherehas($query);
                 },
-                'tp_inkompeten' => function($query) use ($pembelajaran){
-                    $this->wherehas($query, $pembelajaran->mata_pelajaran_id);
+                'tp_inkompeten' => function($query){
+                    $this->wherehas($query);
                 },
                 'nilai_tp' => function($query){
                     $query->where('pembelajaran_id', request()->pembelajaran_id);
@@ -315,22 +444,107 @@ class PenilaianController extends Controller
         }
         $data = [
             'data_siswa' => $data_siswa,
-            'data_tp' => TujuanPembelajaran::where(function($query) use ($pembelajaran){
+            'data_tp' => TujuanPembelajaran::where(function($query){
                 $query->whereHas('tp_mapel', function($query){
                     $query->where('tp_mapel.pembelajaran_id', request()->pembelajaran_id);
                 });
                 if(request()->merdeka){
-                    $query->whereHas('cp', function($query) use ($pembelajaran){
-                        $query->where('mata_pelajaran_id', $pembelajaran->mata_pelajaran_id);
+                    $query->whereHas('cp', function($query){
+                        $query->where('mata_pelajaran_id', request()->mata_pelajaran_id);
                     });
                 } else {
                     $query->whereHas('kd', function($query){
-                        $query->where('mata_pelajaran_id', $pembelajaran->mata_pelajaran_id);
+                        $query->where('mata_pelajaran_id', request()->mata_pelajaran_id);
                     });
                 }
             })->orderBy('created_at')->get(),
             'pembelajaran' => $pembelajaran,
         ];
         return response()->json($data);
+    }
+    public function get_capaian_kompetensi(){
+        $callback = function($query){
+            $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+            $query->with([
+                'nilai_akhir_mapel' => function($query){
+                    if(request()->merdeka){
+                        $query->where('kompetensi_id', 4);
+                    } else {
+                        $query->where('kompetensi_id', 1);
+                    }
+                    $query->where('pembelajaran_id', request()->pembelajaran_id);
+                },
+                'single_deskripsi_mata_pelajaran' => function($query){
+                    $query->where('pembelajaran_id', request()->pembelajaran_id);
+                },
+                'tp_kompeten' => function($query){
+                    $this->wherehas($query);
+                    $query->withWhereHas('tp');
+                },
+                'tp_inkompeten' => function($query){
+                    $this->wherehas($query);
+                    $query->withWhereHas('tp');
+                },
+            ]);
+        };
+        $data_siswa = [];
+        if(request()->pembelajaran_id){
+            $get_mapel_agama = filter_agama_siswa(request()->pembelajaran_id, request()->rombongan_belajar_id);
+            $data_siswa = PesertaDidik::where(function($query) use ($get_mapel_agama, $callback){
+                $query->whereHas('anggota_rombel', $callback);
+                if($get_mapel_agama){
+                    $query->where('agama_id', $get_mapel_agama);
+                }
+            })->with(['anggota_rombel' => $callback])->orderBy('nama')->get();
+        }
+        $data = [
+            'data_siswa' => $data_siswa,
+            'show_reset' => DeskripsiMataPelajaran::where('pembelajaran_id', request()->pembelajaran_id)->count(),
+        ];
+        return response()->json($data);
+    }
+    public function nilai_sikap(){
+        if(request()->route('id')){
+            $data = NilaiBudayaKerja::with(['anggota_rombel' => function($query){
+                $query->with(['rombongan_belajar', 'peserta_didik']);
+            }])->find(request()->route('id'));
+            return response()->json($data);
+        } else {
+            $data = NilaiBudayaKerja::withWhereHas('anggota_rombel', function($query){
+                $query->whereHas('peserta_didik');
+                $query->whereHas('rombongan_belajar');
+                $query->with(['rombongan_belajar', 'peserta_didik']);
+                $query->where('sekolah_id', request()->sekolah_id);
+                $query->where('semester_id', request()->semester_id);
+            })->where(function($query){
+                $query->where('guru_id', request()->guru_id);
+                $query->whereNotNull('deskripsi');
+            })->with(['budaya_kerja', 'elemen_budaya_kerja'])
+            ->orderBy(request()->sortby, request()->sortbydesc)
+            ->when(request()->q, function($query) {
+                $query->where('deskripsi', 'ILIKE', '%' . request()->q . '%');
+                $query->orWhereHas('anggota_rombel', function($query){
+                    $query->whereHas('peserta_didik', function($query){
+                        $query->where('nama', 'ILIKE', '%' . request()->q . '%');
+                        $query->orWhere('nisn', 'ILIKE', '%' . request()->q . '%');
+                    });
+                    $query->orWhereHas('rombongan_belajar', function($query){
+                        $query->where('nama', 'ILIKE', '%' . request()->q . '%');
+                    });
+                });
+            })->paginate(request()->per_page);
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'search' => request()->q,
+                'kurtilas' => RombonganBelajar::where(function($query){
+                    $query->whereHas('kurikulum', function($query){
+                        $query->where('nama_kurikulum', 'ILIKE', '%2013%');
+                    });
+                    $query->where('semester_id', request()->semester_id);
+                    $query->where('sekolah_id', request()->sekolah_id);
+                })->first(),
+            ]);
+        }
     }
 }

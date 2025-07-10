@@ -37,6 +37,8 @@ declare module 'vue-router/auto-routes' {
     'nilai-akademik-ekstrakurikuler': RouteRecordInfo<'nilai-akademik-ekstrakurikuler', '/nilai-akademik/ekstrakurikuler', Record<never, never>, Record<never, never>>,
     'nilai-akademik-nilai-akhir': RouteRecordInfo<'nilai-akademik-nilai-akhir', '/nilai-akademik/nilai-akhir', Record<never, never>, Record<never, never>>,
     'nilai-akademik-nilai-sikap': RouteRecordInfo<'nilai-akademik-nilai-sikap', '/nilai-akademik/nilai-sikap', Record<never, never>, Record<never, never>>,
+    'nilai-akademik-nilai-sikap-id': RouteRecordInfo<'nilai-akademik-nilai-sikap-id', '/nilai-akademik/nilai-sikap/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    'nilai-akademik-nilai-sikap-input-nilai': RouteRecordInfo<'nilai-akademik-nilai-sikap-input-nilai', '/nilai-akademik/nilai-sikap/input-nilai', Record<never, never>, Record<never, never>>,
     'not-authorized': RouteRecordInfo<'not-authorized', '/not-authorized', Record<never, never>, Record<never, never>>,
     'pengaturan-pengguna': RouteRecordInfo<'pengaturan-pengguna', '/pengaturan/pengguna', Record<never, never>, Record<never, never>>,
     'pengaturan-umum': RouteRecordInfo<'pengaturan-umum', '/pengaturan/umum', Record<never, never>, Record<never, never>>,

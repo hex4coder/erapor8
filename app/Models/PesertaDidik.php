@@ -135,4 +135,10 @@ class PesertaDidik extends Model
             'rombongan_belajar_id'
         );
 	}
+    public function anggota_ekskul()
+	{
+		return $this->hasOne(AnggotaRombel::class, 'peserta_didik_id', 'peserta_didik_id')->whereHas('rombongan_belajar', function($query){
+			$query->where('jenis_rombel', 51);
+		});
+	}
 }

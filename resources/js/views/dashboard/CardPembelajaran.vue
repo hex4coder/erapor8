@@ -153,7 +153,8 @@ const refreshNilai = () => {
         <VCard class="text-center mb-10" v-if="loadingBody">
           <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
         </VCard>
-        <VCard :title="cardTitleAlt" v-else>
+        <VCard v-else>
+          <template v-slot:title class="pb-4">{{ cardTitleAlt }}</template>
           <template #append v-if="cardSubTitle">
             <div class="d-flex align-center text-disabled text-subtitle-2">Status Penilaian di Rombongan Belajar ini :
               &nbsp;&nbsp;&nbsp;

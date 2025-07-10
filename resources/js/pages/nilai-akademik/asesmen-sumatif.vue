@@ -6,11 +6,15 @@ definePage({
     title: "Input Asesmen",
   },
 });
+const namaTemplate = ref('')
+const linkTemplateTp = ref('')
 const form = ref({
   tingkat: null,
   rombongan_belajar_id: null,
   pembelajaran_id: null,
+  mata_pelajaran_id: null,
   teknik_penilaian_id: null,
+  template_excel: null,
 });
 const nilai = ref({
   tp: {},
@@ -21,6 +25,7 @@ const errors = ref({
   rombongan_belajar_id: null,
   pembelajaran_id: null,
   teknik_penilaian_id: null,
+  template_excel: null,
 });
 const arrayData = ref({
   rombel: [],
@@ -70,12 +75,16 @@ const defaultForm = {
   guru_id: $user.guru_id,
   sekolah_id: $user.sekolah_id,
 };
-const resetForm = () => {
+const resetForm = ref(false)
+const formReset = () => {
+  resetForm.value = true
   form.value = {
     tingkat: null,
     rombongan_belajar_id: null,
     pembelajaran_id: null,
+    mata_pelajaran_id: null,
     teknik_penilaian_id: null,
+    template_excel: null,
   };
   nilai.value = {
     tp: {},
@@ -86,6 +95,7 @@ const resetForm = () => {
     rombongan_belajar_id: null,
     pembelajaran_id: null,
     teknik_penilaian_id: null,
+    template_excel: null,
   };
   arrayData.value = {
     rombel: [],
@@ -134,6 +144,7 @@ const getData = async (postData) => {
 const changeTingkat = async (val) => {
   form.value.rombongan_belajar_id = null;
   form.value.pembelajaran_id = null;
+  form.value.mata_pelajaran_id = null
   if (val) {
     loading.value.rombel = true;
     await getData({
@@ -147,6 +158,7 @@ const changeTingkat = async (val) => {
 };
 const changeRombel = async (val) => {
   form.value.pembelajaran_id = null;
+  form.value.mata_pelajaran_id = null
   if (val) {
     loading.value.mapel = true;
     await getData({
@@ -172,13 +184,16 @@ const changeMapel = async (val) => {
 const noTp = ref(false);
 const showCp = ref(false);
 const changeTeknik = async (val) => {
+  arrayData.value.siswa = []
+  arrayData.value.tp = []
   if (val) {
     loading.value.body = true;
     await $api("/penilaian/get-cp", {
       method: "POST",
       body: {
-        pembelajaran_id: form.value.pembelajaran_id,
         rombongan_belajar_id: form.value.rombongan_belajar_id,
+        pembelajaran_id: form.value.pembelajaran_id,
+        mata_pelajaran_id: form.value.mata_pelajaran_id,
         teknik_penilaian_id: form.value.teknik_penilaian_id,
       },
       onResponse({ response }) {
@@ -196,6 +211,7 @@ const changeTeknik = async (val) => {
         }
         arrayData.value.siswa.forEach((el) => {
           if (showCp.value) {
+            namaTemplate.value = 'Sumatif Lingkup Materi'
             defaultForm.opsi = "nilai-tp";
             if (el.anggota_rombel.nilai_tp.length) {
               el.anggota_rombel.nilai_tp.forEach((tp) => {
@@ -204,6 +220,7 @@ const changeTeknik = async (val) => {
               });
             }
           } else {
+            namaTemplate.value = 'Sumatif Akhir Semester'
             defaultForm.opsi = "nilai-sumatif";
             if (el.anggota_rombel.nilai_sumatif.length) {
               el.anggota_rombel.nilai_sumatif.forEach((sumatif) => {
@@ -214,13 +231,14 @@ const changeTeknik = async (val) => {
             }
           }
         });
+        linkTemplateTp.value = `/downloads/template-${defaultForm.opsi}/${form.value.pembelajaran_id}`
         loading.value.body = false;
       },
     });
   }
 };
 const confirmClose = () => {
-  resetForm();
+  formReset();
 }
 const calculateAverage = (array) => {
   var total = 0;
@@ -244,7 +262,11 @@ const setRerata = (anggota_rombel_id, jenis) => {
     getRerata = nilai_tes
   }
   nilai.value.sumatif[`${anggota_rombel_id}#na`] = getRerata
-};
+}
+const onFileChange = async (val) => {
+  console.log(val);
+  form.value.template_excel = null
+}
 </script>
 <template>
   <VCard class="mb-6">
@@ -256,8 +278,8 @@ const setRerata = (anggota_rombel_id, jenis) => {
       <VCardText>
         <VRow>
           <DefaultForm v-model:form="form" v-model:errors="errors" v-model:arrayData="arrayData"
-            v-model:loading="loading" @tingkat="changeTingkat" @rombongan_belajar_id="changeRombel"
-            @pembelajaran_id="changeMapel"></DefaultForm>
+            v-model:loading="loading" v-model:resetForm="resetForm" @tingkat="changeTingkat"
+            @rombongan_belajar_id="changeRombel" @pembelajaran_id="changeMapel"></DefaultForm>
           <VCol cols="12">
             <VRow no-gutters>
               <VCol cols="12" md="3" class="d-flex align-items-center">
@@ -268,6 +290,28 @@ const setRerata = (anggota_rombel_id, jenis) => {
                   :items="arrayData.teknik" clearable clear-icon="tabler-x" @update:model-value="changeTeknik"
                   item-value="teknik_penilaian_id" item-title="nama" :error-messages="errors.teknik_penilaian_id"
                   :loading="loading.teknik_penilaian_id" :disabled="loading.teknik_penilaian_id" />
+              </VCol>
+            </VRow>
+          </VCol>
+          <VCol cols="12" v-if="arrayData.siswa.length">
+            <VRow no-gutters>
+              <VCol cols="12" md="3" class="d-flex align-items-center">
+                <label class="v-label text-body-2 text-high-emphasis" for="template_excel">Template Excel</label>
+              </VCol>
+              <VCol cols="12" md="9">
+                <VRow no-gutters>
+                  <VCol cols="6">
+                    <VFileInput id="template_excel" v-model="form.template_excel"
+                      :error-messages="errors.template_excel" @update:model-value="onFileChange"
+                      accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                      label="Unggah Template Excel" />
+                  </VCol>
+                  <VCol cols="6">
+                    <VBtn color="primary" class="ms-3" :href="linkTemplateTp" target="_blank">
+                      Unduh Template {{ namaTemplate }}
+                    </VBtn>
+                  </VCol>
+                </VRow>
               </VCol>
             </VRow>
           </VCol>
@@ -283,6 +327,7 @@ const setRerata = (anggota_rombel_id, jenis) => {
           </p>
         </VAlert>
       </VCardText>
+      <VDivider />
       <template v-if="arrayData.siswa.length">
         <VTable class="text-no-wrap">
           <thead>

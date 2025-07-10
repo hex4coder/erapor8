@@ -6,11 +6,14 @@ definePage({
     title: "Input Nilai Akhir",
   },
 });
+const linkTemplateTp = ref('')
 const form = ref({
   tingkat: null,
   rombongan_belajar_id: null,
   pembelajaran_id: null,
+  mata_pelajaran_id: null,
   bentuk_penilaian: null,
+  template_excel: null,
 });
 const nilai = ref({
   akhir: {},
@@ -21,6 +24,7 @@ const errors = ref({
   rombongan_belajar_id: null,
   pembelajaran_id: null,
   bentuk_penilaian: null,
+  template_excel: null,
 });
 const arrayData = ref({
   rombel: [],
@@ -71,12 +75,16 @@ const defaultForm = {
   sekolah_id: $user.sekolah_id,
   merdeka: false,
 };
-const resetForm = () => {
+const resetForm = ref(false)
+const formReset = () => {
+  resetForm.value = true
   form.value = {
     tingkat: null,
     rombongan_belajar_id: null,
     pembelajaran_id: null,
+    mata_pelajaran_id: null,
     bentuk_penilaian: null,
+    template_excel: null,
   }
   nilai.value = {
     akhir: {},
@@ -87,6 +95,7 @@ const resetForm = () => {
     rombongan_belajar_id: null,
     pembelajaran_id: null,
     bentuk_penilaian: null,
+    template_excel: null,
   }
   arrayData.value = {
     rombel: [],
@@ -111,7 +120,6 @@ const resetForm = () => {
     title: "",
     text: "",
   }
-  defaultForm.opsi = "nilai-akhir"
 };
 const getData = async (postData) => {
   const mergedForm = { ...postData, ...defaultForm };
@@ -136,6 +144,7 @@ const getData = async (postData) => {
 const changeTingkat = async (val) => {
   form.value.rombongan_belajar_id = null;
   form.value.pembelajaran_id = null;
+  form.value.mata_pelajaran_id = null
   if (val) {
     loading.value.rombel = true;
     await getData({
@@ -149,6 +158,7 @@ const changeTingkat = async (val) => {
 };
 const changeRombel = async (val) => {
   form.value.pembelajaran_id = null;
+  form.value.mata_pelajaran_id = null
   if (val) {
     loading.value.mapel = true;
     await getData({
@@ -186,10 +196,12 @@ const changeTeknik = async (val) => {
         let getData = response._data;
         arrayData.value.siswa = getData.data_siswa;
         arrayData.value.tp = getData.data_tp;
+        linkTemplateTp.value = ''
         if (form.value.bentuk_penilaian == 'asesmen') {
           isDisabled.value = true
         } else {
           isDisabled.value = false
+          linkTemplateTp.value = `/downloads/template-nilai-akhir/${form.value.pembelajaran_id}`
         }
         getData.data_siswa.forEach((siswa) => {
           if (form.value.bentuk_penilaian == 'asesmen') {
@@ -209,31 +221,12 @@ const changeTeknik = async (val) => {
   }
 };
 const confirmClose = () => {
-  resetForm();
+  formReset();
 }
-const calculateAverage = (array) => {
-  var total = 0;
-  var count = 0;
-  array.forEach(function (item, index) {
-    total += item;
-    count++;
-  });
-  var angka = total / count;
-  return angka.toFixed(0);
+const onFileChange = async (val) => {
+  console.log(val);
+  form.value.template_excel = null
 }
-const setRerata = (anggota_rombel_id, jenis) => {
-  var getRerata = 0;
-  var nilai_nontes = nilai.value.sumatif[`${anggota_rombel_id}#non-tes`]
-  var nilai_tes = nilai.value.sumatif[`${anggota_rombel_id}#tes`]
-  if (nilai_nontes && nilai_tes) {
-    getRerata = calculateAverage([parseInt(nilai_nontes), parseInt(nilai_tes)])
-  } else if (nilai_nontes && !nilai_tes) {
-    getRerata = nilai_nontes
-  } else if (!nilai_nontes && nilai_tes) {
-    getRerata = nilai_tes
-  }
-  nilai.value.sumatif[`${anggota_rombel_id}#na`] = getRerata
-};
 </script>
 <template>
   <VCard class="mb-6">
@@ -245,8 +238,8 @@ const setRerata = (anggota_rombel_id, jenis) => {
       <VCardText>
         <VRow>
           <DefaultForm v-model:form="form" v-model:errors="errors" v-model:arrayData="arrayData"
-            v-model:loading="loading" @tingkat="changeTingkat" @rombongan_belajar_id="changeRombel"
-            @pembelajaran_id="changeMapel"></DefaultForm>
+            v-model:loading="loading" v-model:resetForm="resetForm" @tingkat="changeTingkat"
+            @rombongan_belajar_id="changeRombel" @pembelajaran_id="changeMapel"></DefaultForm>
           <VCol cols="12">
             <VRow no-gutters>
               <VCol cols="12" md="3" class="d-flex align-items-center">
@@ -260,11 +253,34 @@ const setRerata = (anggota_rombel_id, jenis) => {
               </VCol>
             </VRow>
           </VCol>
+          <VCol cols="12" v-if="arrayData.siswa.length && !isDisabled">
+            <VRow no-gutters>
+              <VCol cols="12" md="3" class="d-flex align-items-center">
+                <label class="v-label text-body-2 text-high-emphasis" for="template_excel">Template Excel</label>
+              </VCol>
+              <VCol cols="12" md="9">
+                <VRow no-gutters>
+                  <VCol cols="6">
+                    <VFileInput id="template_excel" v-model="form.template_excel"
+                      :error-messages="errors.template_excel" @update:model-value="onFileChange"
+                      accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                      label="Unggah Template Excel" />
+                  </VCol>
+                  <VCol cols="6">
+                    <VBtn color="primary" class="ms-3" :href="linkTemplateTp" target="_blank">
+                      Unduh Template Nilai Akhir
+                    </VBtn>
+                  </VCol>
+                </VRow>
+              </VCol>
+            </VRow>
+          </VCol>
         </VRow>
         <div class="text-center" v-if="loading.body">
           <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
         </div>
       </VCardText>
+      <VDivider />
       <template v-if="arrayData.siswa.length">
         <VTable>
           <thead>

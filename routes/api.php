@@ -114,10 +114,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             Route::post('/update', [ReferensiController::class, 'update_ukk']);
             Route::post('/save', [ReferensiController::class, 'save_ukk']);
         });
+        Route::get('/sikap', [ReferensiController::class, 'sikap']);
     });
     Route::group(['prefix' => 'penilaian'], function () {
         Route::post('/get-cp', [PenilaianController::class, 'get_cp']);
         Route::post('/get-nilai-akhir', [PenilaianController::class, 'get_nilai_akhir']);
+        Route::post('/get-capaian-kompetensi', [PenilaianController::class, 'get_capaian_kompetensi']);
         Route::post('/simpan', [PenilaianController::class, 'simpan']);
+        Route::post('/destroy', [PenilaianController::class, 'destroy']);
+        Route::get('/nilai-sikap/{id?}', [PenilaianController::class, 'nilai_sikap']);
     });
 });

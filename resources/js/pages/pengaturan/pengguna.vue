@@ -284,16 +284,11 @@ const confirmClose = (val) => {
         <VSpacer />
 
         <div class="app-user-search-filter d-flex align-center flex-wrap gap-4">
-          <!-- 👉 Search  -->
           <div style="inline-size: 15.625rem;">
             <AppTextField v-model="options.searchQuery" placeholder="Cari Data" />
           </div>
-
-          <!-- 👉 Export button -->
           <AppSelect v-model="options.selectedRole" placeholder="Filter Hak Akses" :items="roles" clearable
             clear-icon="tabler-x" style="inline-size: 15rem;" item-title="display_name" item-value="name" />
-
-          <!-- 👉 Add user button -->
           <VBtn prepend-icon="tabler-bolt" @click="generateUser">
             Atur Ulang
           </VBtn>

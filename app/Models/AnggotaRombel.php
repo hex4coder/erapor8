@@ -54,4 +54,20 @@ class AnggotaRombel extends Model
 	public function nilai_akhir_induk(){
 		return $this->hasOne(NilaiAkhir::class, 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', 99);
 	}
+	public function single_deskripsi_mata_pelajaran(){
+		return $this->hasOne(DeskripsiMataPelajaran::class, 'anggota_rombel_id', 'anggota_rombel_id');
+	}
+	public function anggota_ekskul(){
+		return $this->hasManyThrough(
+            AnggotaRombel::class,
+            PesertaDidik::class,
+            'peserta_didik_id', 
+            'peserta_didik_id',
+            'peserta_didik_id',
+            'peserta_didik_id'
+        );
+	}
+	public function single_nilai_ekstrakurikuler(){
+		return $this->hasOne(NilaiEkstrakurikuler::class, 'anggota_rombel_id', 'anggota_rombel_id');
+	}
 }

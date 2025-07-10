@@ -4,8 +4,8 @@ export const setupGuards = router => {
   // 👉 router.beforeEach
   // Docs: https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
   router.beforeEach(to => {
-    if(to.meta.title)
-    document.title = `${to.meta.title} | ${app_name}`;
+    if (to.meta.title)
+      document.title = `${to.meta.title} | ${app_name}`;
     /*
          * If it's a public route, continue navigation. This kind of pages are allowed to visited by login & non-login users. Basically, without any restrictions.
          * Examples of public routes are, 404, under maintenance, etc.
@@ -32,16 +32,16 @@ export const setupGuards = router => {
     }
     if (!canNavigate(to) && to.matched.length) {
       /* eslint-disable indent */
-            return isLoggedIn
-                ? { name: 'not-authorized' }
-                : {
-                    name: 'login',
-                    query: {
-                        ...to.query,
-                        to: to.fullPath !== '/' ? to.path : undefined,
-                    },
-                }
-            /* eslint-enable indent */
+      return isLoggedIn
+        ? { name: 'not-authorized' }
+        : {
+          name: 'login',
+          query: {
+            ...to.query,
+            to: to.fullPath !== '/' ? to.path : undefined,
+          },
+        }
+      /* eslint-enable indent */
     }
   })
 }
