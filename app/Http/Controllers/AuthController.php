@@ -384,6 +384,9 @@ class AuthController extends Controller
             );
             $user->name = request()->name;
             $user->email = request()->email;
+            if(request()->password){
+                $user->password = bcrypt(request()->password);
+            }
             if(request()->photo){
                 $photo = request()->photo->store('profile-photos');
                 $user->profile_photo_path = 'profile-photos/'.basename($photo);

@@ -277,3 +277,46 @@ function filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id){
     }
     return $agama_id;
 }
+function keterangan_ukk($n, $lang = 'ID')
+{
+    if ($lang == 'ID') {
+        if (!$n) {
+            $predikat 	= '';
+        /*} elseif ($n >= 90) {
+            $predikat 	= 'Sangat Kompeten';
+        } elseif ($n >= 75 && $n <= 89) {
+            $predikat 	= 'Kompeten';
+        } elseif ($n >= 70 && $n <= 74) {
+            $predikat 	= 'Cukup Kompeten';
+        } elseif ($n < 70) {
+            $predikat 	= 'Belum Kompeten';
+        }*/
+        /*
+        0-69 = Belum Kompeten
+        70-100 = Kompeten
+        */
+        } elseif($n >= 70){
+            $predikat 	= 'Kompeten';
+        } else {
+            $predikat 	= 'Belum Kompeten';
+        }
+    } else {
+        if (!$n) {
+            $predikat 	= '';
+        /*} elseif ($n >= 90) {
+            $predikat 	= 'Highly Competent';
+        } elseif ($n >= 75 && $n <= 89) {
+            $predikat 	= 'Competent';
+        } elseif ($n >= 70 && $n <= 74) {
+            $predikat 	= 'Partly Competent';
+        } elseif ($n < 70) {
+            $predikat 	= 'Not Yet Competent';
+        }*/
+        } elseif($n >= 70){
+            $predikat 	= 'Competent';
+        } else {
+            $predikat 	= 'Not Yet Competent';
+        }
+    }
+    return $predikat;
+}

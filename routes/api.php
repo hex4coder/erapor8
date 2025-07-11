@@ -51,7 +51,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/update', [SettingController::class, 'update']);
         Route::get('users', [SettingController::class, 'users']);
         Route::post('detil-user', [SettingController::class, 'detil_user']);
-        Route::post('hapus-akses', [SettingController::class, 'hapus_akses']);
+        Route::post('update-user', [SettingController::class, 'update_user']);
         Route::post('update-akses', [SettingController::class, 'update_akses']);
         Route::post('generate-pengguna', [SettingController::class, 'generate_pengguna']);
         Route::post('reset-bg', [SettingController::class, 'reset_bg']);
@@ -131,6 +131,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     Route::group(['prefix' => 'ukk'], function () {
         Route::get('/', [UkkController::class, 'index']);
+        Route::post('/', [UkkController::class, 'index']);
         Route::post('/save', [UkkController::class, 'save']);
         Route::post('/hapus', [UkkController::class, 'hapus']);
         Route::post('/show', [UkkController::class, 'show']);

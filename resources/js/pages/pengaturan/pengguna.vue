@@ -197,12 +197,31 @@ const aksesDelete = ref({
   role: null,
   periode_aktif: null,
 })
+const form = ref({
+  aksi: null,
+  user_id: null,
+  role: null,
+  periode_aktif: null,
+})
+const resetPassword = () => {
+  isConfirmDialogVisible.value = true
+  form.value = {
+    aksi: 'reset-password',
+    user_id: dialogBody.value.userId,
+    role: null,
+    periode_aktif: null,
+  }
+}
 const hapusAkses = (role, periode_aktif) => {
   idLoading.value = `${role}-${periode_aktif}`
   loadHapus.value[idLoading.value] = true
   isConfirmDialogVisible.value = true
-  aksesDelete.value.role = role
-  aksesDelete.value.periode_aktif = periode_aktif
+  form.value = {
+    aksi: 'hapus-akses',
+    user_id: dialogBody.value.userId,
+    role: role,
+    periode_aktif: periode_aktif,
+  }
 }
 const notif = ref({
   color: null,
@@ -212,13 +231,9 @@ const notif = ref({
 const role_guru = [7, 8, 9];
 const confirmDelete = async (val) => {
   if (val) {
-    await $api('/setting/hapus-akses', {
+    await $api('/setting/update-user', {
       method: 'POST',
-      body: {
-        user_id: dialogBody.value.userId,
-        role: aksesDelete.value.role,
-        periode_aktif: aksesDelete.value.periode_aktif,
-      },
+      body: form.value,
       onResponse({ request, response, options }) {
         let getData = response._data
         notif.value = getData
@@ -259,8 +274,8 @@ const confirmDialog = () => {
   }, 300)
   fetchData()
 }
-const confirmClose = (val) => {
-  detilUser(dialogBody.value.userId)
+const confirmClose = async () => {
+  await detilUser(dialogBody.value.userId)
 }
 </script>
 
@@ -343,7 +358,11 @@ const confirmClose = (val) => {
     </VCard>
     <VDialog v-model="isDialogVisible" width="800">
       <DialogCloseBtn @click="isDialogVisible = !isDialogVisible" />
-      <VCard :title="dialogTitle" class="pb-8">
+      <VCard style="position: relative;">
+        <VCardItem class="pb-5">
+          <VCardTitle>{{ dialogTitle }}</VCardTitle>
+        </VCardItem>
+        <VDivider />
         <VTable class="text-no-wrap">
           <tbody>
             <tr>
@@ -361,9 +380,9 @@ const confirmClose = (val) => {
                   {{ dialogBody.defaultPassword }}
                 </template>
                 <template v-else>
-                  Custom | Reset Password
-                  <!--b-badge variant="success">Custom</b-badge>
-                  <b-button variant="danger" size="sm" @click="resetPassword()">Reset Password</b-button-->
+                  <VChip size="x-small" color="error">
+                    Custom
+                  </VChip>
                 </template>
               </td>
             </tr>
@@ -405,7 +424,12 @@ const confirmClose = (val) => {
               :value="role.value" />
           </VCardText>
         </template>
-        <VCardText class="d-flex justify-end">
+        <VDivider />
+        <VCardText class="d-flex justify-end flex-wrap gap-3">
+          <VBtn color="error" @click="resetPassword" v-if="!cekPass(dialogBody.password, dialogBody.defaultPassword)">
+            Reset Password
+          </VBtn>
+          <VSpacer />
           <VBtn @click="onsubmit">
             Simpan
           </VBtn>

@@ -10,6 +10,9 @@ Route::group(['prefix' => 'downloads'], function () {
     Route::get('/template-sumatif-akhir-semester/{pembelajaran_id?}', [DownloadController::class, 'template_sumatif_akhir_semester'])->name('template-sumatif-akhir-semester');
     Route::get('/template-nilai-akhir/{pembelajaran_id?}', [DownloadController::class, 'template_nilai_akhir'])->name('template-nilai-akhir');
 });
+Route::group(['prefix' => 'cetak'], function () {
+    Route::get('/sertifikat/{anggota_rombel_id}/{rencana_ukk_id}', [CetakController::class, 'sertifikat'])->name('sertifikat');
+});
 Route::get('{any?}', function() {
     return view('application');
 })->where('any', '.*');

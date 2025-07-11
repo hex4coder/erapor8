@@ -577,7 +577,6 @@ const generateLink = (item) => {
                   <td class="text-center">
                     <VBtn prepend-icon="tabler-printer" color="success" size="small" :href="generateLink(siswa)"
                       target="_blank" v-if="generateLink(siswa)">Cetak</VBtn>
-                    <!--<b-button variant="success" size="sm" :href="generate_link(item)" target="_blank" v-if="generate_link(item)">Cetak</b-button>-->
                   </td>
                 </template>
               </tr>

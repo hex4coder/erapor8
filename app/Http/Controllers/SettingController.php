@@ -290,19 +290,36 @@ class SettingController extends Controller
         ];
         return response()->json($data);
     }
-    public function hapus_akses(){
+    public function update_user(){
         $user = User::find(request()->user_id);
-        if($user->removeRole(request()->role, request()->periode_aktif)){
+        $update = NULL;
+        $text_success = 'Unknow';
+        $text_failed = 'Unknow';
+        if(request()->aksi == 'hapus-akses'){
+            $text_success = 'Hak Akses berhasil dihapus';
+            $text_failed = 'Hak Akses Pengguna gagal dihapus.';
+            $update = $user->removeRole(request()->role, request()->periode_aktif);
+        }
+        if(request()->aksi == 'reset-password'){
+            $text_success = 'Password pengguna berhasil direset';
+            $text_failed = 'Password pengguna gagal direset.';
+            if(!$user->default_password){
+                $user->default_password = strtolower(Str::random(8));
+            }
+            $user->password = bcrypt($user->default_password);
+            $update = $user->save();
+        }
+        if($update){
             $data = [
                 'color' => 'success',
                 'title' => 'Berhasil!',
-                'text' => 'Hak Akses berhasil dihapus',
+                'text' => $text_success,
             ];
         } else {
             $data = [
                 'color' => 'error',
                 'title' => 'Gagal!',
-                'text' => 'Hak Akses Pengguna gagal dihapus. Silahkan coba beberapa saat lagi!',
+                'text' => $text_failed.' Silahkan coba beberapa saat lagi!',
             ];
         }
         return response()->json($data);

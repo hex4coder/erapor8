@@ -11,25 +11,57 @@ use App\Models\PesertaDidik;
 class UkkController extends Controller
 {
     public function index(){
-        $data = RencanaUkk::withWhereHas('paket_ukk')->where(function($query){
-            $query->where('sekolah_id', request()->sekolah_id);
-            $query->where('semester_id', request()->semester_id);
-        })->with([
-            'guru_internal' => function($query){
-                $query->select('guru_id', 'nama', 'gelar_depan', 'gelar_belakang', 'photo', 'email');
-            },
-            'guru_eksternal' => function($query){
-                $query->select('guru_id', 'nama', 'gelar_depan', 'gelar_belakang', 'photo', 'email');
-            },
-        ])->withCount('pd')
-        ->orderBy(request()->sortby, request()->sortbydesc)
-        ->when(request()->q, function($query) {
-            $query->whereHas('paket_ukk', function($query){
-                $query->where('nama_paket_id', 'ILIKE', '%' . request()->q . '%');
-                $query->orWhere('nama_paket_en', 'ILIKE', '%' . request()->q . '%');
-            });
-        })->paginate(request()->per_page);
-        return response()->json(['status' => 'success', 'data' => $data]);
+        if(request()->isMethod('POST')){
+            $data = [];
+            if(request()->data == 'rencana'){
+                $rencana_ukk = [];
+                $get = RencanaUkk::where(function($query){
+                    $query->where('sekolah_id', request()->sekolah_id);
+                    $query->where('semester_id', request()->semester_id);
+                    $query->where('internal', request()->guru_id);
+                })->withWhereHas('paket_ukk')->get();
+                foreach($get as $val){
+                    $rencana_ukk[] = [
+                        'rencana_ukk_id' => $val->rencana_ukk_id,
+                        'nama' => $val->paket_ukk->nama_paket_id,
+                    ];
+                }
+                $data = [
+                    'rencana_ukk' => $rencana_ukk,
+                    'data_siswa' => (request()->rencana_ukk_id) ? PesertaDidik::withWhereHas('nilai_ukk', function($query){
+                        $query->where('rencana_ukk_id', request()->rencana_ukk_id);
+                    })->orderBy('nama')->get() : [],
+                ];
+            }
+            if(request()->data == 'siswa'){
+                $data = [
+                    'data_siswa' => PesertaDidik::withWhereHas('nilai_ukk', function($query){
+                        $query->where('rencana_ukk_id', request()->rencana_ukk_id);
+                    })->orderBy('nama')->get(),
+                ];
+            }
+            return response()->json($data);
+        } else {
+            $data = RencanaUkk::withWhereHas('paket_ukk')->where(function($query){
+                $query->where('sekolah_id', request()->sekolah_id);
+                $query->where('semester_id', request()->semester_id);
+            })->with([
+                'guru_internal' => function($query){
+                    $query->select('guru_id', 'nama', 'gelar_depan', 'gelar_belakang', 'photo', 'email');
+                },
+                'guru_eksternal' => function($query){
+                    $query->select('guru_id', 'nama', 'gelar_depan', 'gelar_belakang', 'photo', 'email');
+                },
+            ])->withCount('pd')
+            ->orderBy(request()->sortby, request()->sortbydesc)
+            ->when(request()->q, function($query) {
+                $query->whereHas('paket_ukk', function($query){
+                    $query->where('nama_paket_id', 'ILIKE', '%' . request()->q . '%');
+                    $query->orWhere('nama_paket_en', 'ILIKE', '%' . request()->q . '%');
+                });
+            })->paginate(request()->per_page);
+            return response()->json(['status' => 'success', 'data' => $data]);
+        }
     }
     public function save(){
         $insert = 0;
@@ -90,6 +122,25 @@ class UkkController extends Controller
             }
             if(array_filter($deleted)){
                 NilaiUkk::where('rencana_ukk_id', $rencana_ukk->rencana_ukk_id)->whereNotIn('anggota_rombel_id', array_filter($deleted))->delete();
+            }
+        }
+        if(request()->data == 'nilai'){
+            $text = 'Nilai UKK';
+            foreach(request()->nilai as $uuid => $nilai_ukk){
+                $insert++;
+                $segments = Str::of($uuid)->split('/[\s#]+/');
+                NilaiUkk::updateOrCreate(
+                    [
+                        'sekolah_id' => request()->sekolah_id,
+                        'rencana_ukk_id' => request()->rencana_ukk_id,
+                        'anggota_rombel_id' => $segments->last(),
+                        'peserta_didik_id' => $segments->first(),
+                    ],
+                    [
+                        'nilai' => $nilai_ukk,
+                        'last_sync' => now(),
+                    ]
+                );
             }
         }
         if($insert){
