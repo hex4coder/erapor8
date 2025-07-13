@@ -30,9 +30,11 @@ const fetchData = async () => {
     if (currentTab.value == 'changelog') {
       data.value = getData.data
     } else {
-      githubData.value = getData.data
-      isPrev.value = !getData.headers.Link[0]?.includes('first')
-      isNext.value = !getData.headers.Link[0]?.includes('last')
+      githubData.value = getData?.data
+      if (getData.headers.length) {
+        isPrev.value = !getData.headers?.Link[0]?.includes('first')
+        isNext.value = !getData.headers?.Link[0]?.includes('last')
+      }
     }
   } catch (error) {
     console.error(error);
@@ -107,28 +109,35 @@ const aksi = async (aksi) => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in githubData">
-                <td class="text-center">{{ index + 1 + (10 * options.page) - 10 }}</td>
-                <td>{{ new Date(item.commit.author.date).toLocaleString('id-ID', {
-                  hour12: false,
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
-                }) }}</td>
-                <td class="py-2">
-                  <span v-html="formattedText(item.commit.message)"></span>
-                </td>
-                <td class="text-center">
-                  {{ item.commit.author.name }}
-                </td>
-              </tr>
+              <template v-if="githubData.length">
+                <tr v-for="(item, index) in githubData">
+                  <td class="text-center">{{ index + 1 + (10 * options.page) - 10 }}</td>
+                  <td>{{ new Date(item.commit.author.date).toLocaleString('id-ID', {
+                    hour12: false,
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  }) }}</td>
+                  <td class="py-2">
+                    <span v-html="formattedText(item.commit.message)"></span>
+                  </td>
+                  <td class="text-center">
+                    {{ item.commit.author.name }}
+                  </td>
+                </tr>
+              </template>
+              <template v-else>
+                <tr>
+                  <td colspan="4" class="text-center">Tidak ada data untuk ditampilkan</td>
+                </tr>
+              </template>
             </tbody>
           </VTable>
           <VDivider />
-          <VCardText class="text-center">
+          <VCardText class="text-center" v-if="githubData.length">
             <v-btn-toggle v-model="navigasi" divided class="navigasi">
               <v-btn value="prev" :disabled="isPrev" @click="aksi('prev')">
                 &laquo; prev

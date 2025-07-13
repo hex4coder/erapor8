@@ -551,32 +551,37 @@ class SettingController extends Controller
         return response()->json($data);
     }
     public function github(){
-        $url = 'https://api.github.com/repos/eraporsmk/erapor8/commits';
-        $response = Http::withToken(config('app.github_token'))->get($url, [
-            'page' => request()->page,
-            'per_page' => request()->per_page,
-        ]);
-        $data = [
-            'data' => $response->json(),
-            'headers' => $response->headers(),
-            'activeTab' => request()->activeTab,
-            'url' => $url,
-        ];
+        try {
+            $url = 'https://api.github.com/repos/eraporsmk/erapor8/commits';
+            $response = Http::withToken(config('app.github_token'))->get($url, [
+                'page' => request()->page,
+                'per_page' => request()->per_page,
+            ]);
+            $data = [
+                'data' => $response->json(),
+                'headers' => $response->headers(),
+                'activeTab' => request()->activeTab,
+                'url' => $url,
+            ];
+        } catch (\Throwable $th) {
+            $data = [
+                'data' => [],
+                'headers' => [],
+                'message' => $th->getMessage(),
+            ];
+        }
         return response()->json($data);
     }
     public function check_update(){
-        $response = Http::post('sync.erapor-smk.net/api/v8/version');
-        $tersedia = FALSE;
-        if($response->successful()){
-            $version = $response->object();
-            if (version_compare($version->version, get_setting('app_version')) > 0) {
-                $tersedia = TRUE;
-            }
-        }
+        $local = getLastCommit();
+        $github = getCurrentHead();
         $data = [
             'win' => Str::contains(php_uname('s'), 'Windows'),
-            'tersedia' => $tersedia,
+            'tersedia' => cekUpdate(),
+            'local' => $local,
+            'github' => $github,
+            'cekDiff' => cekDiff($local, $github),
         ];
-        return response()->json(['data' => $data]);
+        return response()->json($data);
     }
 }

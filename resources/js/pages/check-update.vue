@@ -11,11 +11,15 @@ onMounted(async () => {
 });
 const loadingBody = ref(true)
 const data = ref()
+const invert = ref()
+const human = ref()
 const fetchData = async () => {
   try {
     const response = await useApi(createUrl('/setting/check-update'));
-    let getData = response.data
-    data.value = getData.value?.data
+    let getData = response.data.value
+    data.value = getData
+    invert.value = getData?.cekDiff.invert
+    human.value = getData?.cekDiff.human
   } catch (error) {
     console.error(error);
   } finally {
@@ -82,6 +86,12 @@ const fetchData = async () => {
         <VAlert color="error">
           Pembaharuan belum tersedia!
         </VAlert>
+      </VCardText>
+      <VCardText v-if="invert">
+        <VAlert color="success" class="mb-4">
+          Pembaharuan github tersedia!
+        </VAlert>
+        <p>Silahkan lakukan <code>git pull</code> atau <code>php artisan app:version --force</code></p>
       </VCardText>
     </VCard>
   </div>

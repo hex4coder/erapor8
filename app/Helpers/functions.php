@@ -320,3 +320,63 @@ function keterangan_ukk($n, $lang = 'ID')
     }
     return $predikat;
 }
+function get_current_git_commit( $branch='main' ) {
+  if ( $hash = file_get_contents(base_path(sprintf( '.git/refs/heads/%s', $branch ))) ) {
+    return trim($hash);
+  } else {
+    return false;
+  }
+}
+function getLastCommit(){
+    $url = 'https://api.github.com/repos/eraporsmk/erapor8';
+    try {
+        $response = Http::withToken(config('app.github_token'))->get($url);
+        $result = $response->object();
+        $pushed_at = Carbon::parse($result->pushed_at)->format('Y-m-d H:i:s');
+    } catch (\Throwable $th) {
+        $pushed_at = NULL;
+    }
+    return $pushed_at;
+}
+function getCurrentHead(){
+    $url = 'https://api.github.com/repos/eraporsmk/erapor8/commits/'.get_current_git_commit();
+    try {
+        $response = Http::withToken(config('app.github_token'))->get($url);
+        $result = $response->object();
+        $pushed_at = Carbon::parse($result->commit->author->date)->format('Y-m-d H:i:s');
+    } catch (\Throwable $th) {
+        $pushed_at = NULL;
+    }
+    return $pushed_at;
+}
+function cekDiff($last, $head){
+    $diff = [
+        'invert' => NULL,
+        'human' => NULL,
+    ];
+    if($last && $head){
+        $diff = Carbon::parse($last)->diff(Carbon::parse($head));
+        //$diff = Carbon::parse($last)->diff(now());
+        //$diff = Carbon::now()->diff(Carbon::parse($head));
+        $diff = [
+            'invert' => $diff->invert,
+            'human' => Carbon::parse($last)->diffForHumans(Carbon::parse($head))
+        ];
+    }
+    return $diff;
+}
+function cekUpdate(){
+    $tersedia = FALSE;
+    try {
+        $response = Http::post('sync.erapor-smk.net/api/v8/version');
+        if($response->successful()){
+            $version = $response->object();
+            if (version_compare($version->version, get_setting('app_version')) > 0) {
+                $tersedia = TRUE;
+            }
+        }
+    } catch (\Throwable $th) {
+        //throw $th;
+    }
+    return $tersedia;
+}
