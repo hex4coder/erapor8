@@ -133,7 +133,9 @@ class PklController extends Controller
     }
     private function get_rombel(){
         $data = RombonganBelajar::where(function($query){
-            $query->where('tingkat', request()->tingkat);
+            if(request()->tingkat){
+                $query->where('tingkat', request()->tingkat);
+            }
             $query->whereHas('pembelajaran', function($query){
                 $query->where('guru_id', request()->guru_id);
                 $query->where('mata_pelajaran_id', 800001000);
@@ -187,26 +189,70 @@ class PklController extends Controller
     public function save(){
         $insert = 0;
         $text = 'Rencana Penilaian PKL';
-        request()->validate(
-            [
-                'tingkat' => 'required',
-                'rombongan_belajar_id' => 'required',
-                'dudi_id' => 'required',
-                'akt_pd_id' => 'required',
-                'tanggal_mulai' => 'required',
-                'tanggal_selesai' => 'required',
-                'instruktur' => 'required',
-            ],
-            [
-                'tingkat.required' => 'Tingkat Kelas tidak boleh kosong!',
-                'rombongan_belajar_id.required' => 'Rombongan Belajar tidak boleh kosong!',
-                'dudi_id.required' => 'DUDI tidak boleh kosong!',
-                'akt_pd_id.required' => 'Perjanjian Kerja Sama (PKS) tidak boleh kosong!',
-                'tanggal_mulai.required' => 'Tanggal Mulai tidak boleh kosong!',
-                'tanggal_selesai.required' => 'Tanggal Selesai tidak boleh kosong!',
-                'instruktur.required' => 'Nama Lengkap Instruktur tidak boleh kosong!',
-            ]
-        );
+        if(request()->aksi == 'nilai'){
+            $text = 'Nilai PKL';
+            foreach(request()->nilai as $uuid => $nilai){
+                $segments = Str::of($uuid)->split('/[\s#]+/');
+                $peserta_didik_id = $segments->last();
+                $tp_id = $segments->first();
+                NilaiPkl::updateOrCreate(
+                    [
+                        'peserta_didik_id' => $peserta_didik_id,
+                        'pkl_id' => request()->pkl_id,
+                        'tp_id' => $tp_id,
+                    ],
+                    [
+                        'nilai' => $nilai,
+                        'deskripsi' => isset(request()->deskripsi[$uuid]) ? request()->deskripsi[$uuid] : NULL,
+                    ]
+                );
+                $insert++;
+            }
+            foreach(request()->catatan as $peserta_didik_id => $catatan){
+                $find = PdPkl::where('peserta_didik_id', $peserta_didik_id)->where('pkl_id', request()->pkl_id)->first();
+                if($find){
+                    $find->catatan = $catatan;
+                    $find->save();
+                }
+            }
+        } elseif(request()->aksi == 'absen'){
+            $text = 'Absensi PKL';
+            foreach(request()->sakit as $peserta_didik_id => $sakit){
+                AbsensiPkl::updateOrCreate(
+                    [
+                        'peserta_didik_id' => $peserta_didik_id,
+                        'pkl_id' => request()->pkl_id,
+                    ],
+                    [
+                        'sakit' => $sakit,
+                        'izin' => request()->izin[$peserta_didik_id],
+                        'alpa' => request()->alpa[$peserta_didik_id],
+                    ]
+                );
+                $insert++;
+            }
+        } else {
+            request()->validate(
+                [
+                    'tingkat' => 'required',
+                    'rombongan_belajar_id' => 'required',
+                    'dudi_id' => 'required',
+                    'akt_pd_id' => 'required',
+                    'tanggal_mulai' => 'required',
+                    'tanggal_selesai' => 'required',
+                    'instruktur' => 'required',
+                ],
+                [
+                    'tingkat.required' => 'Tingkat Kelas tidak boleh kosong!',
+                    'rombongan_belajar_id.required' => 'Rombongan Belajar tidak boleh kosong!',
+                    'dudi_id.required' => 'DUDI tidak boleh kosong!',
+                    'akt_pd_id.required' => 'Perjanjian Kerja Sama (PKS) tidak boleh kosong!',
+                    'tanggal_mulai.required' => 'Tanggal Mulai tidak boleh kosong!',
+                    'tanggal_selesai.required' => 'Tanggal Selesai tidak boleh kosong!',
+                    'instruktur.required' => 'Nama Lengkap Instruktur tidak boleh kosong!',
+                ]
+            );
+        }
         if(request()->aksi == 'add'){
             if(request()->tp_id){
                 $pkl = PraktikKerjaLapangan::create([
@@ -271,5 +317,57 @@ class PklController extends Controller
             ];
         }
         return response()->json($data);
+    }
+    public function get_pkl(){
+        $data = PraktikKerjaLapangan::where(function($query){
+            $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+            $query->where('guru_id', request()->guru_id);
+        })->orderBy('created_at')->get();
+        return $data;
+    }
+    public function get_siswa(){
+        $data = [
+            'siswa' => PesertaDidik::select('peserta_didik_id', 'nama', 'nisn', 'photo')->withWhereHas('pd_pkl', function($query){
+                $query->where('pkl_id', request()->pkl_id);
+            })->whereHas('anggota_rombel', function($query){
+                $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+            })->with([
+                'nilai_pkl' => function($query){
+                    $query->where('pkl_id', request()->pkl_id);
+                },
+                'absensi_pkl' => function($query){
+                    $query->where('pkl_id', request()->pkl_id);
+                }
+            ])->orderBy('nama')->get(),
+            'tp' => TujuanPembelajaran::withWhereHas('tp_pkl', function($query){
+                $query->where('pkl_id', request()->pkl_id);
+            })->orderBy('deskripsi')->get(),
+        ];
+        return $data;
+    }
+    public function get_rapor(){
+        $data = PesertaDidik::select('peserta_didik_id', 'nama', 'nisn', 'photo')->withWhereHas('all_pd_pkl', function($query){
+            $query->withCount(['nilai_pkl' => function($query){
+                $query->whereHas('praktik_kerja_lapangan', function($query){
+                    $query->where('guru_id', request()->guru_id);
+                    $query->where('semester_id', request()->semester_id);
+                });    
+            }]);
+            $query->withWhereHas('praktik_kerja_lapangan', function($query){
+                $query->where('guru_id', request()->guru_id);
+                $query->where('semester_id', request()->semester_id);
+            });
+        })->withWhereHas('pd_pkl', function($query){
+            $query->withWhereHas('praktik_kerja_lapangan', function($query){
+                $query->where('guru_id', request()->guru_id);
+                $query->where('semester_id', request()->semester_id);
+            });
+        })->with([
+            'kelas' => function($query){
+                $query->where('jenis_rombel', 1);
+                $query->where('rombongan_belajar.semester_id', request()->semester_id);
+            },
+        ])->orderBy('nama')->get();
+        return $data;
     }
 }

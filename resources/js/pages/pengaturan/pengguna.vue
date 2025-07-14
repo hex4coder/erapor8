@@ -107,29 +107,42 @@ const cekPass = (pass, defaultPassword) => {
 }
 const loading = ref(false)
 const generateUserDialog = ref(false)
-const generateUser = async () => {
+const dialogValue = ref()
+const generateTitle = ref()
+const generateUser = async (val) => {
+  dialogValue.value = val
+  if (val == 'new') {
+    generateTitle.value = 'Generate Pengguna'
+  } else {
+    generateTitle.value = 'Unduh Pengguna'
+  }
   generateUserDialog.value = true
 }
 const confirmGenerate = async (val) => {
-  loading.value = true
-  await $api('/setting/generate-pengguna', {
-    method: 'POST',
-    body: {
-      aksi: val,
-      semester_id: $semester.semester_id,
-      sekolah_id: $user.sekolah_id,
-      periode_aktif: $semester.nama,
-    },
-    onResponse({ request, response, options }) {
-      let getData = response._data
-      loading.value = false
-      generateUserDialog.value = false
-      notif.value.color = getData.color
-      notif.value.title = getData.title
-      notif.value.text = getData.text
-      isAlertDialogVisible.value = true
-    }
-  })
+  if (dialogValue.value == 'new') {
+    loading.value = true
+    await $api('/setting/generate-pengguna', {
+      method: 'POST',
+      body: {
+        aksi: val,
+        semester_id: $semester.semester_id,
+        sekolah_id: $user.sekolah_id,
+        periode_aktif: $semester.nama,
+      },
+      onResponse({ request, response, options }) {
+        let getData = response._data
+        loading.value = false
+        generateUserDialog.value = false
+        notif.value.color = getData.color
+        notif.value.title = getData.title
+        notif.value.text = getData.text
+        isAlertDialogVisible.value = true
+      }
+    })
+  } else {
+    generateUserDialog.value = false
+    window.open(`/downloads/pengguna/${val}/${$user.sekolah_id}/${$semester.semester_id}`, `_blank`);
+  }
 }
 const loadings = ref([])
 const isDialogVisible = ref(false)
@@ -285,6 +298,11 @@ const confirmClose = async () => {
     <VCard class="mb-6">
       <VCardItem class="pb-4">
         <VCardTitle>Akses Pengguna</VCardTitle>
+        <template #append>
+          <VBtn prepend-icon="tabler-file-type-xls" @click="generateUser('unduh')" color="success">
+            Unduh Pengguna
+          </VBtn>
+        </template>
       </VCardItem>
       <VDivider />
       <VCardText class="d-flex flex-wrap gap-4">
@@ -304,7 +322,7 @@ const confirmClose = async () => {
           </div>
           <AppSelect v-model="options.selectedRole" placeholder="Filter Hak Akses" :items="roles" clearable
             clear-icon="tabler-x" style="inline-size: 15rem;" item-title="display_name" item-value="name" />
-          <VBtn prepend-icon="tabler-bolt" @click="generateUser">
+          <VBtn prepend-icon="tabler-bolt" @click="generateUser('new')">
             Atur Ulang
           </VBtn>
         </div>
@@ -451,7 +469,7 @@ const confirmClose = async () => {
           </VBtn>
 
           <h6 class="text-lg font-weight-medium">
-            Generate Pengguna
+            {{ generateTitle }}
           </h6>
           <p>Silahkan Pilih Jenis Akun</p>
         </VCardText>

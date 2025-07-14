@@ -167,4 +167,16 @@ class PesertaDidik extends Model
 	{
 		return $this->hasOne(PdPkl::class, 'peserta_didik_id', 'peserta_didik_id');
 	}
+    public function nilai_pkl()
+	{
+		return $this->hasMany(NilaiPkl::class, 'peserta_didik_id', 'peserta_didik_id');
+	}
+	public function absensi_pkl()
+	{
+		return $this->hasOne(AbsensiPkl::class, 'peserta_didik_id', 'peserta_didik_id');
+	}
+    public function all_pd_pkl()
+	{
+		return $this->hasMany(PdPkl::class, 'peserta_didik_id', 'peserta_didik_id');
+	}
 }

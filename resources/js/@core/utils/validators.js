@@ -34,7 +34,7 @@ export const confirmedValidator = (value, target) => value === target || 'Kombin
 export const betweenValidator = (value, min, max) => {
   const valueAsNumber = Number(value)
 
-  return (Number(min) <= valueAsNumber && Number(max) >= valueAsNumber) || `Enter number between ${min} and ${max}`
+  return (value) ? (Number(min) <= valueAsNumber && Number(max) >= valueAsNumber) || `Masukkan angka antara ${min} dan ${max}` : null
 }
 
 // 👉 Integer Validator

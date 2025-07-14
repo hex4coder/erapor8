@@ -11,3 +11,6 @@
 .border-right {
     border-right: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
+.v-table .v-table__wrapper > table > tbody > tr > td.align-top {
+    vertical-align: top; padding-top: 16px;
+}

@@ -337,4 +337,51 @@ class CetakController extends Controller
 		$pdf->getMpdf()->WriteHTML($rapor_pendukung);
 		return $pdf->stream($general_title.'-LAMPIRAN.pdf');
 	}
+	public function rapor_pkl()
+    {
+		$pd = PesertaDidik::with([
+			'sekolah' => function($query){
+				$query->select('sekolah_id', 'nama', 'kabupaten');
+			},
+			'kelas' => function($query){
+				$query->where('rombongan_belajar.semester_id', request()->route('semester_id'));
+				$query->where('tingkat', '<>', 0);
+				$query->where('jenis_rombel', 1);
+				$query->with(['jurusan_sp.jurusan.parent']);
+			},
+			'pd_pkl' => function($query){
+				$query->withWhereHas('praktik_kerja_lapangan', function($query){
+					$query->withWhereHas('akt_pd', function($query){
+						$query->with('mou');
+					});
+					$query->where('pkl_id', request()->route('pkl_id'));
+				});
+			},
+			'nilai_pkl' => function($query){
+				$query->with(['tp']);
+				$query->where('pkl_id', request()->route('pkl_id'));
+			},
+			'absensi_pkl' => function($query){
+				$query->where('pkl_id', request()->route('pkl_id'));
+			}
+		])->find(request()->route('peserta_didik_id'));
+        $data = [
+        	'pd' => $pd,
+        ];
+		$pdf = PDF::loadView('cetak.rapor-pkl', $data, [], [
+			'format' => [210, 330],
+			'margin_left' => 15,
+			'margin_right' => 15,
+			'margin_top' => 15,
+			'margin_bottom' => 15,
+			'margin_header' => 5,
+			'margin_footer' => 5,
+		]);
+        $pdf->getMpdf()->defaultfooterfontsize=7;
+		$pdf->getMpdf()->defaultfooterline=1;
+		$pdf->getMpdf()->SetFooter($pd->nama.' - '. $pd->kelas->nama .' |{PAGENO}|Dicetak dari '.config('app.name').' v.'.get_setting('app_version'));
+		$general_title = $pd->nama.' - '.$pd->pd_pkl->praktik_kerja_lapangan->dudi->nama_dudi.'-'.Carbon::parse($pd->pd_pkl->praktik_kerja_lapangan->tanggal_selesai)->format('d-m-Y');
+		return $pdf->stream(clean($general_title).'.pdf');
+        //return $pdf->stream('document.pdf');
+    }
 }

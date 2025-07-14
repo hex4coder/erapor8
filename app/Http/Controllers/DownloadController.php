@@ -10,12 +10,16 @@ use App\Models\KompetensiDasar;
 use App\Models\CapaianPembelajaran;
 use App\Models\PesertaDidik;
 use App\Models\TujuanPembelajaran;
+use App\Models\Semester;
+use App\Models\User;
 use App\Exports\TemplateTp;
 use App\Exports\TemplateSumatifLingkupMateri;
 use App\Exports\TemplateSumatifAkhirSemester;
 use App\Exports\TemplateNilaiAkhir;
 use App\Exports\LeggerNilaiKurmerExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Rap2hpoutre\FastExcel\FastExcel;
+use Hash;
 
 class DownloadController extends Controller
 {
@@ -180,4 +184,28 @@ class DownloadController extends Controller
 			'semester_id' => request()->route('semester_id'),
 		])->download($nama_file);
     }
+	public function pengguna($data, $sekolah_id, $semester_id){
+		$semester = Semester::find($semester_id);
+		$users = User::where(function($query) use ($semester, $sekolah_id, $data){
+			if($data == 'ptk'){
+				$query->whereHasRole(['guru', 'tu'], $semester->nama);
+			} else {
+				$query->whereHasRole(['siswa'], $semester->nama);
+			}
+            $query->where('sekolah_id', $sekolah_id);
+        })->orderBy('name')->get();
+		$output = [];
+		foreach($users as $user){
+			$result = [];
+			$password = NULL;
+			if (Hash::check($user->default_password, $user->password)) {
+    			$password = $user->default_password;
+			}
+			$result['nama'] = $user->name;
+			$result['email'] = $user->email;
+			$result['password'] = $password;
+			$output[] = $result;
+		}
+		return (new FastExcel($output))->download('pengguna-'.$data.'.xlsx');
+	}
 }
