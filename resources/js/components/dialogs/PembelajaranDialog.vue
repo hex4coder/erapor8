@@ -12,6 +12,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  form: {
+    type: Object,
+    required: true,
+  },
   listData: {
     type: Array,
     required: true,
@@ -90,13 +94,13 @@ const hapus = async (pembelajaran_id) => {
             </tr>
           </template>
           <template v-else-if="listData.length">
-            <tr v-for="(item, index) in listData">
+            <tr v-for="(item, index) in listData" :class="{ 'bg-light-warning': item.induk_pembelajaran_id }">
               <td class="text-center">{{ index + 1 }}</td>
               <td>
-                <AppTextField v-model="item.nama_mata_pelajaran" />
+                <AppTextField style="inline-size: 15.5rem;" v-model="form.nama[item.pembelajaran_id]" />
               </td>
               <td>
-                <AppTextField v-model="item.mata_pelajaran_id" disabled />
+                <AppTextField style="inline-size: 7rem;" v-model="item.mata_pelajaran_id" disabled />
               </td>
               <td>
                 <AppSelect v-model="item.guru_id" :items="listGuru" item-title="nama_lengkap" item-value="guru_id"
@@ -113,15 +117,16 @@ const hapus = async (pembelajaran_id) => {
                 </AppSelect>
               </td>
               <td>
-                <AppAutocomplete :items="listGuru" placeholder="== Pilih Guru Pengajar ==" item-title="nama_lengkap"
-                  item-value="guru_id" v-model="item.guru_pengajar_id" clearable />
+                <AppAutocomplete style="inline-size: 15.5rem;" :items="listGuru" placeholder="== Pilih Guru Pengajar =="
+                  item-title="nama_lengkap" item-value="guru_id" v-model="form.guru_pengajar_id[item.pembelajaran_id]"
+                  clearable />
               </td>
               <td>
                 <AppAutocomplete :items="listKelompok" placeholder="== Pilih Kelompok ==" item-title="nama_kelompok"
-                  item-value="kelompok_id" v-model="item.kelompok_id" clearable />
+                  item-value="kelompok_id" v-model="form.kelompok_id[item.pembelajaran_id]" clearable />
               </td>
-              <td>
-                <AppTextField v-model="item.no_urut" />
+              <td class="text-center">
+                <AppTextField style="inline-size: 4rem;" v-model="form.no_urut[item.pembelajaran_id]" />
               </td>
               <td class="text-center">
                 <VBtn :loading="loadings[item.pembelajaran_id]" :disabled="loadings[item.pembelajaran_id]" color="error"

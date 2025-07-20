@@ -83,12 +83,20 @@ class RombelController extends Controller
         ]);
     }
     public function simpan_pembelajaran(){
-        foreach(request()->all() as $item){
+        /*foreach(request()->all() as $item){
             Pembelajaran::where('pembelajaran_id', $item['pembelajaran_id'])->update([
                 'nama_mata_pelajaran' => $item['nama_mata_pelajaran'],
                 'guru_pengajar_id' => $item['guru_pengajar_id'],
                 'kelompok_id' => $item['kelompok_id'],
                 'no_urut' => $item['no_urut']
+            ]);
+        }*/
+        foreach(request()->pembelajaran_id as $pembelajaran_id){
+            Pembelajaran::where('pembelajaran_id', $pembelajaran_id)->update([
+                'nama_mata_pelajaran' => request()->nama[$pembelajaran_id],
+                'guru_pengajar_id' => request()->guru_pengajar_id[$pembelajaran_id],
+                'kelompok_id' => request()->kelompok_id[$pembelajaran_id],
+                'no_urut' => request()->no_urut[$pembelajaran_id],
             ]);
         }
         $data = [

@@ -184,7 +184,7 @@ const refreshNilai = () => {
             </thead>
             <tbody>
               <template v-if="pembelajaran.length">
-                <tr v-for="(item, index) in pembelajaran">
+                <tr v-for="(item, index) in pembelajaran" :class="{ 'bg-light-warning': item.induk_pembelajaran_id }">
                   <td class="text-center">{{ index + 1 }}</td>
                   <td>{{ item.nama_mata_pelajaran }}</td>
                   <template v-if="rombel">

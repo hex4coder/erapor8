@@ -3,7 +3,7 @@ definePage({
   meta: {
     action: 'read',
     subject: 'Administrator',
-    title: 'Pengaturan Umum',
+    title: 'Backup Restore Database',
   },
 })
 onMounted(async () => {

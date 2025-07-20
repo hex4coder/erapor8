@@ -124,6 +124,13 @@ const getAnggota = async (rombongan_belajar_id) => {
         }
     })
 }
+const form = ref({
+    pembelajaran_id: {},
+    nama: {},
+    guru_pengajar_id: {},
+    kelompok_id: {},
+    no_urut: {},
+})
 const getPembelajaran = async (rombongan_belajar_id) => {
     isLoading.value = true
     rombonganBelajarId.value = rombongan_belajar_id
@@ -139,6 +146,13 @@ const getPembelajaran = async (rombongan_belajar_id) => {
             let getData = response._data
             dialogTitle.value = `Pembelajaran Kelas ${getData.rombel.nama}`
             pembelajaran.value = getData.data
+            getData.data.forEach(item => {
+                form.value.pembelajaran_id[item.pembelajaran_id] = item.pembelajaran_id
+                form.value.nama[item.pembelajaran_id] = item.nama_mata_pelajaran
+                form.value.guru_pengajar_id[item.pembelajaran_id] = item.guru_pengajar_id
+                form.value.kelompok_id[item.pembelajaran_id] = item.kelompok_id
+                form.value.no_urut[item.pembelajaran_id] = item.no_urut
+            });
             guru.value = getData.guru
             kelompok.value = getData.kelompok
             isLoading.value = false
@@ -158,7 +172,7 @@ const isSnackbarVisible = ref(false)
 const savePembelajaran = async () => {
     await $api('/referensi/rombongan-belajar/simpan-pembelajaran', {
         method: 'POST',
-        body: pembelajaran.value,
+        body: form.value,
         onResponse() {
             snackBarText.value = 'Pembelajaran berhasil disimpan'
             snackBarLocaltion.value = 'top'
@@ -245,8 +259,8 @@ const savePembelajaran = async () => {
             </template>
         </VDataTableServer>
         <PembelajaranDialog v-model:isDialogVisible="showPembelajaran" v-model:isLoading="isLoading"
-            :dialog-title="dialogTitle" v-model:listData="pembelajaran" :list-guru="guru" :list-kelompok="kelompok"
-            @save="savePembelajaran" @refresh="reFecthData" />
+            :dialog-title="dialogTitle" v-model:listData="pembelajaran" v-model:form="form" :list-guru="guru"
+            :list-kelompok="kelompok" @save="savePembelajaran" @refresh="reFecthData" />
         <AnggotaRombelDialog v-model:isDialogVisible="showAnggota" v-model:isLoading="isLoading"
             :dialog-title="dialogTitle" v-model:listData="anggotaRombel" @refresh="reFecthAnggota" />
         <VSnackbar v-model="isSnackbarVisible" color="success" :location="snackBarLocaltion">
