@@ -24,21 +24,23 @@ class TemplateTp implements ToCollection, WithStartRow
     public function collection(Collection $collection)
     {
         foreach($collection as $tp){
-            $new_tp = TujuanPembelajaran::updateOrCreate(
-                [
-                    'kd_id' => Str::isUuid($this->id) ? $this->id : NULL,
-                    'cp_id' => Str::isUuid($this->id) ? NULL : $this->id,
-                    'deskripsi' => mb_convert_encoding($tp[1], 'UTF-8', 'UTF-8'),
-                ],
-                [
-                    'last_sync' => now(),
-                ]
-            );
-            if($new_tp){
-                TpMapel::updateOrCreate([
-                    'tp_id' => $new_tp->tp_id,
-                    'pembelajaran_id' => $this->pembelajaran_id,
-                ]);
+            if($tp[1]){
+                $new_tp = TujuanPembelajaran::updateOrCreate(
+                    [
+                        'kd_id' => Str::isUuid($this->id) ? $this->id : NULL,
+                        'cp_id' => Str::isUuid($this->id) ? NULL : $this->id,
+                        'deskripsi' => mb_convert_encoding($tp[1], 'UTF-8', 'UTF-8'),
+                    ],
+                    [
+                        'last_sync' => now(),
+                    ]
+                );
+                if($new_tp){
+                    TpMapel::updateOrCreate([
+                        'tp_id' => $new_tp->tp_id,
+                        'pembelajaran_id' => $this->pembelajaran_id,
+                    ]);
+                }
             }
         }
     }
