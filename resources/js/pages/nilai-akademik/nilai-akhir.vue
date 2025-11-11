@@ -269,7 +269,7 @@ const onFileChange = async (val) => {
               </VCol>
             </VRow>
           </VCol>
-          <VCol cols="12" v-if="arrayData.siswa.length && !isDisabled">
+          <VCol cols="12" v-if="arrayData.siswa.length && arrayData.tp.length && !isDisabled">
             <VRow no-gutters>
               <VCol cols="12" md="3" class="d-flex align-items-center">
                 <label class="v-label text-body-2 text-high-emphasis" for="template_excel">Template Excel</label>
@@ -297,7 +297,7 @@ const onFileChange = async (val) => {
         </div>
       </VCardText>
       <VDivider />
-      <template v-if="arrayData.siswa.length && !uploading">
+      <template v-if="arrayData.siswa.length && arrayData.tp.length && !uploading">
         <VTable>
           <thead>
             <tr>
@@ -334,10 +334,14 @@ const onFileChange = async (val) => {
         </VTable>
       </template>
       <VDivider />
-      <VCardText class="d-flex justify-end flex-wrap gap-3 pt-5 overflow-visible" v-if="showBtn">
+      <VCardText class="d-flex justify-end flex-wrap gap-3 pt-5 overflow-visible" v-if="showBtn && arrayData.tp.length">
         <VBtn variant="elevated" type="submit" :loading="confirmed" :disabled="confirmed">
           Simpan
         </VBtn>
+      </VCardText>
+      <VCardText class="d-flex justify-end flex-wrap gap-3 pt-5 overflow-visible"
+        v-if="showBtn && !arrayData.tp.length">
+        <VAlert color="error">Belum ada TP untuk mata pelajaran ini.</VAlert>
       </VCardText>
     </VForm>
     <ConfirmDialog v-model:isDialogVisible="isConfirmDialogVisible" v-model:isNotifVisible="isNotifVisible"

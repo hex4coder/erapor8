@@ -221,7 +221,7 @@ const formReset = async () => {
                       placeholder="0-100" />
                   </td>
                   <td class="py-4">
-                    <VTextarea label="Catatan PKL" v-model="form.deskripsi[`${tp.tp_id}#${siswa.peserta_didik_id}`]" />
+                    <VTextarea label="Deskripsi" v-model="form.deskripsi[`${tp.tp_id}#${siswa.peserta_didik_id}`]" />
                   </td>
                 </tr>
               </template>

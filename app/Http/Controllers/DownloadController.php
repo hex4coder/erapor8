@@ -164,6 +164,10 @@ class DownloadController extends Controller
 				'data_tp' => $data_tp, 
 				'pembelajaran' => $pembelajaran,
 			];
+			if($data_tp->count() == 0){
+				echo 'Tidak ada TP untuk mata pelajaran ini.';
+				exit;
+			}
 			$export = new TemplateNilaiAkhir($data);
 			return Excel::download($export, $nama_file . '.xlsx');
 		} else {

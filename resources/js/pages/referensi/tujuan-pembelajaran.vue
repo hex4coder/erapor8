@@ -190,7 +190,7 @@ const defaultForm = {
 const form = ref({
   tp_id: null,
   tingkat: null,
-  rombongan_belajar_id: null,
+  rombongan_belajar_id: [],
   mata_pelajaran_id: null,
   cp_id: null,
   kd_id: null,
@@ -265,7 +265,10 @@ const postData = async () => {
   dataForm.append('deskripsi', (mergedForm.deskripsi) ? mergedForm.deskripsi : '');
   dataForm.append('mata_pelajaran_id', (mergedForm.mata_pelajaran_id) ? mergedForm.mata_pelajaran_id : '');
   dataForm.append('pembelajaran_id', pembelajaranId.value);
-  dataForm.append('rombongan_belajar_id', (mergedForm.rombongan_belajar_id) ? mergedForm.rombongan_belajar_id : '');
+  //dataForm.append('rombongan_belajar_id', mergedForm.rombongan_belajar_id);
+  for (var i = 0; i < mergedForm.rombongan_belajar_id.length; i++) {
+    dataForm.append('rombongan_belajar_id[]', mergedForm.rombongan_belajar_id[i]);
+  }
   dataForm.append('template_excel', (mergedForm.template_excel) ? mergedForm.template_excel : '');
   dataForm.append('tingkat', (mergedForm.tingkat) ? mergedForm.tingkat : '');
   dataForm.append('tp_id', (mergedForm.tp_id) ? mergedForm.tp_id : '');
