@@ -111,6 +111,9 @@ const confirmAlert = () => {
         </VCard>
         <VCard v-else>
           <VCardText class="text-center">
+            <p>FITUR INI SEMENTARA DI NON AKTIFKAN</p>
+          </VCardText>
+          <!--VCardText class="text-center">
             <p>Pengiriman data terakhir dilakukan pada <br>
               <strong>{{ last_sync }}</strong>
             </p>
@@ -118,7 +121,7 @@ const confirmAlert = () => {
               @click="kirimData">
               <font-awesome-icon icon="fa-solid fa-cloud-arrow-up" />&nbsp;&nbsp;&nbsp;<strong>KIRIM DATA</strong>
             </VBtn>
-          </VCardText>
+          </VCardText-->
         </VCard>
       </VCol>
     </VRow>

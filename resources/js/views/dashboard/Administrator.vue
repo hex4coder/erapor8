@@ -171,11 +171,6 @@ const confirmClose = () => {
                 </tr>
               </tbody>
             </VTable>
-            <VDivider />
-            <VCardText>
-              Aplikasi e-Rapor SMK ini dibuat dan dikembangkan oleh Direktorat Sekolah Menengah Kejuruan Kementerian
-              Pendidikan Dasar dan Menengah Republik Indonesia
-            </VCardText>
           </VCard>
         </VCol>
         <VCol cols="5" md="5" sm="12">
@@ -186,7 +181,7 @@ const confirmClose = () => {
           </VCard>
           <VCard title="Informasi Aplikasi" class="pb-2" v-else>
             <VDivider />
-            <VTable density="compact" class="text-no-wrap">
+            <VTable class="text-no-wrap">
               <tbody>
                 <tr>
                   <td>Nama Aplikasi</td>
@@ -207,10 +202,26 @@ const confirmClose = () => {
                       @update:model-value="changeStatus" />
                   </td>
                 </tr>
+                <tr>
+                  <td>Link Group Diskusi</td>
+                  <td>
+                    <a href="https://chat.whatsapp.com/DASJrtiDNF5LI45QoKEB8Z" target="_blank"
+                      rel="noopener noreferrer">
+                      Group WA 1</a><br>
+                    <a href="https://chat.whatsapp.com/FkkPKImP5ZI0kRqPOrSL1M" target="_blank"
+                      rel="noopener noreferrer">Group WA 2</a><br>
+                    <a href="https://t.me/eRaporSMK" target="_blank" rel="noopener noreferrer">Group Telegram</a> <br>
+                  </td>
+                </tr>
               </tbody>
             </VTable>
+            <VDivider />
+            <VCardText>
+              <p></p>
+              <p>Aplikasi ini dibuat dan dikembangkan oleh SMK, dari SMK, untuk SMK</p>
+            </VCardText>
           </VCard>
-          <VCard class="mt-4" title="Helpdesk e-Rapor SMK" v-if="loadingBody">
+          <!--VCard class="mt-4" title="Helpdesk e-Rapor SMK" v-if="loadingBody">
             <VCardText class="text-center">
               <VProgressCircular :size="60" indeterminate color="error" class="my-10" />
             </VCardText>
@@ -236,7 +247,7 @@ const confirmClose = () => {
                 </tr>
               </tbody>
             </VTable>
-          </VCard>
+          </VCard-->
         </VCol>
       </VRow>
     </VCol>
