@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => 'SIPENA SMK',
+    'name' => 'e-Rapor SMK',
     'version' => env('APP_VERSION', '8.0.0'),
     'registration' => env('APP_REGISTRATION', FALSE),
     'github_token' => env('APP_GITHUB_TOKEN', ''),
