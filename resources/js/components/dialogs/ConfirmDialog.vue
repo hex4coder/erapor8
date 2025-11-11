@@ -52,7 +52,7 @@ const onConfirmation = () => {
 }
 
 const onCancel = () => {
-  emit('confirm', false)
+  //emit('confirm', false)
   emit('update:isDialogVisible', false)
 }
 const closeConfirm = () => {
