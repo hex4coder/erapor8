@@ -82,9 +82,17 @@ php artisan migrate
 php artisan db:seed
 ```
 
+## Panduan Aplikasi
+
+- Panduan instal aplikasi. Silahkan download [disini](#)
+
+- Panduan penggunaan aplikasi. silahkan download [disini](#)
+
 ## Untuk pengguna windows
 
-- Panduan aplikasi & installer. silahkan download [disini](http://eraporsmk.kemdikbud.go.id/pusat-unduhan)
+- Untuk pengguna lama (Path Versi 8). Silahkan download [disini](#)
+
+- Untuk pengguna baru (Fresh Installer Versi 8). silahkan download [disini](#)
 
 ## Cara Install (Untuk Pengguna Lama)
 
