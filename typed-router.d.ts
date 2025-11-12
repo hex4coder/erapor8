@@ -84,5 +84,6 @@ declare module 'vue-router/auto-routes' {
     'walas-nilai-ekstrakurikuler': RouteRecordInfo<'walas-nilai-ekstrakurikuler', '/walas/nilai-ekstrakurikuler', Record<never, never>, Record<never, never>>,
     'walas-pkl': RouteRecordInfo<'walas-pkl', '/walas/pkl', Record<never, never>, Record<never, never>>,
     'walas-unduh-legger': RouteRecordInfo<'walas-unduh-legger', '/walas/unduh-legger', Record<never, never>, Record<never, never>>,
+    'walas-unduh-legger-matpil': RouteRecordInfo<'walas-unduh-legger-matpil', '/walas/unduh-legger-matpil', Record<never, never>, Record<never, never>>,
   }
 }

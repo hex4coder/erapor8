@@ -2,8 +2,8 @@
 definePage({
   meta: {
     action: 'read',
-    subject: 'Wali',
-    title: 'Unduh Legger'
+    subject: 'Pilihan',
+    title: 'Unduh Legger (Matpil)'
   },
 })
 onMounted(async () => {
@@ -39,7 +39,7 @@ const fetchData = async () => {
         semester_id: defaultForm.value.semester_id,
         periode_aktif: defaultForm.value.nama,
         aksi: defaultForm.value.aksi,
-        pilihan: false,
+        pilihan: true,
       },
     }));
     let getData = response.data.value
@@ -112,9 +112,6 @@ const getRasio = (rasio) => {
               <template v-for="(pembelajaran, index) in arrayData.pembelajaran">
                 <th class="text-center">{{ pembelajaran.nama_mata_pelajaran }}</th>
               </template>
-              <th class="text-center align-middle" rowspan="3">S</th>
-              <th class="text-center align-middle" rowspan="3">I</th>
-              <th class="text-center align-middle" rowspan="3">A</th>
             </tr>
           </template>
           <template v-else>
@@ -183,15 +180,6 @@ const getRasio = (rasio) => {
                 </template>
               </template>
             </template>
-            <td class="text-center">
-              {{ item.anggota_rombel.absensi?.sakit ?? '-' }}
-            </td>
-            <td class="text-center">
-              {{ item.anggota_rombel.absensi?.izin ?? '-' }}
-            </td>
-            <td class="text-center">
-              {{ item.anggota_rombel.absensi?.alpa ?? '-' }}
-            </td>
           </tr>
         </tbody>
       </VTable>

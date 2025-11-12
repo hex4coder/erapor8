@@ -68,4 +68,17 @@ export default [
       },
     ],
   },
+  {
+    title: 'Wali Kelas (Matpil)',
+    icon: { icon: 'tabler-copy' },
+    children: [
+      {
+        title: 'Unduh Leger',
+        to: 'walas-unduh-legger-matpil',
+        icon: { icon: 'tabler-hand-finger-right' },
+        action: 'read',
+        subject: 'Pilihan',
+      },
+    ]
+  },
 ]
