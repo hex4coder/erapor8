@@ -127,7 +127,7 @@ class AuthController extends Controller
                 'description' => $semester->nama,
             ]);
             if(!$user->hasRole('admin', $semester->nama)){
-                $user->attachRole('admin', $team);
+                $user->addRole('admin', $team);
             }
         }
         $general  = [
