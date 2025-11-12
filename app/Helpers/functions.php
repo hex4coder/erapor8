@@ -203,6 +203,9 @@ function merdeka($nama_kurikulum){
 function is_ppa($semester_id){
     return ($semester_id >= 20221);
 }
+function is_new_ppa($semester_id){
+    return ($semester_id <= 20251);
+}
 function get_string_between($string, $start, $end){
     $string = ' ' . $string;
     $ini = strpos($string, $start);

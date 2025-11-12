@@ -438,6 +438,7 @@ class WalasController extends Controller
             'data_siswa' => $data_siswa,
             'rapor_pts' => config('erapor.rapor_pts'),
             'is_ppa' => is_ppa($rombel->semester_id),
+            'is_new_ppa' => is_new_ppa($rombel->semester_id),
         ];
         return $data;
     }
@@ -486,6 +487,7 @@ class WalasController extends Controller
             'data_siswa' => $data_siswa,
             'pembelajaran' => $pembelajaran,
             'is_ppa' => is_ppa($rombel->semester_id),
+            'is_new_ppa' => is_new_ppa($rombel->semester_id),
         ];
         return $data;
     }

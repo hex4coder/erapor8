@@ -22,6 +22,7 @@ const defaultForm = ref({
   rapor_pts: false,
   merdeka: false,
   is_ppa: false,
+  is_new_ppa: true,
 })
 const arrayData = ref({
   siswa: [],
@@ -43,6 +44,7 @@ const fetchData = async () => {
     defaultForm.value.rapor_pts = getData.rapor_pts
     defaultForm.value.merdeka = getData.merdeka
     defaultForm.value.is_ppa = getData.is_ppa
+    defaultForm.value.is_new_ppa = getData.is_new_ppa
     arrayData.value.siswa = getData.data_siswa
   } catch (error) {
     console.error(error);
@@ -70,7 +72,7 @@ const fetchData = async () => {
             <th class="text-center">Halaman Depan</th>
             <th class="text-center">Rapor Akademik</th>
             <th class="text-center" v-if="defaultForm.rapor_pts">Rapor Tengah Semester</th>
-            <th class="text-center" v-if="defaultForm.merdeka">Rapor P5</th>
+            <th class="text-center" v-if="defaultForm.merdeka && !defaultForm.is_new_ppa">Rapor P5</th>
             <th class="text-center">Dokumen Pendukung</th>
           </tr>
         </thead>
@@ -83,7 +85,12 @@ const fetchData = async () => {
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="success" variant="text"
                 :href="`/cetak/rapor-cover/${item.anggota_rombel.anggota_rombel_id}`" target="_blank" />
             </td>
-            <td class="text-center" v-if="defaultForm.merdeka || defaultForm.is_ppa">
+            <td class="text-center" v-if="defaultForm.is_new_ppa">
+              <VBtn size="x-large" icon="tabler-file-type-pdf" color="warning" variant="text"
+                :href="`/cetak/rapor-akademik/${item.anggota_rombel.anggota_rombel_id}/${defaultForm.sekolah_id}/${defaultForm.semester_id}`"
+                target="_blank" />
+            </td>
+            <td class="text-center" v-else-if="defaultForm.merdeka || defaultForm.is_ppa">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="warning" variant="text"
                 :href="`/cetak/rapor-nilai-akhir/${item.anggota_rombel.anggota_rombel_id}/${defaultForm.sekolah_id}/${defaultForm.semester_id}`"
                 target="_blank" />
@@ -98,7 +105,7 @@ const fetchData = async () => {
                 :href="`/cetak/rapor-tengah-semester/${item.anggota_rombel.anggota_rombel_id}/${defaultForm.semester_id}`"
                 target="_blank" />
             </td>
-            <td class="text-center" v-if="defaultForm.merdeka">
+            <td class="text-center" v-if="defaultForm.merdeka && !defaultForm.is_new_ppa">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="info" variant="text"
                 :href="`/cetak/rapor-p5/${item.anggota_rombel.anggota_rombel_id}/${defaultForm.semester_id}`"
                 target="_blank" />
