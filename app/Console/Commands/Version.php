@@ -59,11 +59,11 @@ class Version extends Command
     private function prosesUpdate(){
         $token = config('app.github_token');
         $this->info('Silahkan tunggu, sedang proses update aplikasi....');
-        //exec("git pull origin main");
-        exec("git pull https://eraporsmk:$token@github.com/eraporsmk/erapor8.git main");
-        exec("git clean -df");
+        //exec("git clean -df");
         exec("git stash");
         exec("git config --global --add safe.directory C:/eRaporSMK/dataweb");
+        exec("git pull origin main");
+        //exec("git pull https://eraporsmk:$token@github.com/eraporsmk/erapor8.git main");
         exec("composer update");
         $this->call('app:update');
     }
