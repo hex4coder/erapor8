@@ -14,6 +14,7 @@ use App\Models\Absensi;
 use App\Models\RombelEmpatTahun;
 use App\Models\KenaikanKelas;
 use App\Models\Pembelajaran;
+use App\Models\CatatanWali;
 
 class WalasController extends Controller
 {
@@ -489,6 +490,96 @@ class WalasController extends Controller
             'is_ppa' => is_ppa($rombel->semester_id),
             'is_new_ppa' => is_new_ppa($rombel->semester_id),
         ];
+        return $data;
+    }
+    private function kokurikuler(){
+        $rombel = $this->getRombel();
+        $data_siswa = ($rombel) ? PesertaDidik::withWhereHas('anggota_rombel', function($query) use ($rombel){
+            $query->where('rombongan_belajar_id', $rombel->rombongan_belajar_id);
+            $query->with('kokurikuler');
+        })->orderBy('nama')->get() : NULL;
+        $data = [
+            'rombel' => $rombel,
+            'merdeka' => ($rombel) ? merdeka($rombel->kurikulum->nama_kurikulum) : FALSE,
+            'data_siswa' => $data_siswa,
+            'is_new_ppa' => is_new_ppa($rombel->semester_id),
+        ];
+        return $data;
+    }
+    private function catatan_walas(){
+        $rombel = $this->getRombel();
+        $data_siswa = ($rombel) ? PesertaDidik::withWhereHas('anggota_rombel', function($query) use ($rombel){
+            $query->where('rombongan_belajar_id', $rombel->rombongan_belajar_id);
+            $query->with('catatan_walas');
+        })->orderBy('nama')->get() : NULL;
+        $data = [
+            'rombel' => $rombel,
+            'merdeka' => ($rombel) ? merdeka($rombel->kurikulum->nama_kurikulum) : FALSE,
+            'data_siswa' => $data_siswa,
+            'is_new_ppa' => is_new_ppa($rombel->semester_id),
+        ];
+        return $data;
+    }
+    private function simpan_kokurikuler(){
+        $insert = 0;
+        foreach(array_filter(request()->uraian_deskripsi) as $anggota_rombel_id => $uraian_deskripsi){
+            $insert++;
+            CatatanWali::updateOrCreate(
+                [
+                    'anggota_rombel_id' => $anggota_rombel_id,
+                    'type' => 'kokurikuler',
+                ],
+                [
+                    'sekolah_id' => request()->sekolah_id,
+                    'uraian_deskripsi' => $uraian_deskripsi,
+                    'last_sync' => now(),
+                ]
+            );
+        }
+        if($insert){
+            $data = [
+                'color' => 'success',
+                'title' => 'Berhasil!',
+                'text' => 'Data berhasil disimpan',
+            ];
+        } else {
+            $data = [
+                'color' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Data gagal disimpan. Silahkan coba beberapa saat lagi!',
+            ];
+        }
+        return $data;
+    }
+    private function simpan_catatan_walas(){
+        $insert = 0;
+        foreach(array_filter(request()->uraian_deskripsi) as $anggota_rombel_id => $uraian_deskripsi){
+            $insert++;
+            CatatanWali::updateOrCreate(
+                [
+                    'anggota_rombel_id' => $anggota_rombel_id,
+                    'type' => 'catatan_walas',
+                ],
+                [
+                    'sekolah_id' => request()->sekolah_id,
+                    'uraian_deskripsi' => $uraian_deskripsi,
+                    'last_sync' => now(),
+                ]
+            );
+        }
+        if($insert){
+            $data = [
+                'color' => 'success',
+                'title' => 'Berhasil!',
+                'text' => 'Data berhasil disimpan',
+            ];
+        } else {
+            $data = [
+                'color' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Data gagal disimpan. Silahkan coba beberapa saat lagi!',
+            ];
+        }
         return $data;
     }
 }

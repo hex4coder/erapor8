@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class CatatanWali extends Model
 {
+	use HasUuids;
     protected $table = 'catatan_wali';
 	protected $primaryKey = 'catatan_wali_id';
 	protected $guarded = [];

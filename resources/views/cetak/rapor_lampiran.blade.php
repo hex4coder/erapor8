@@ -117,7 +117,9 @@
         </thead>
         <tbody>
             <tr>
-                <td>...</td>
+                <td>
+                    {{ $get_siswa->kokurikuler?->uraian_deskripsi }}
+                </td>
             </tr>
         </tbody>
     </table>
@@ -174,7 +176,9 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>...</td>
+                            <td>
+                                {{ $get_siswa->catatan_walas?->uraian_deskripsi }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -216,7 +220,9 @@
         </thead>
         <tbody>
             <tr>
-                <td>...</td>
+                <td>
+                    <br><br><br><br><br><br>
+                </td>
             </tr>
         </tbody>
     </table>

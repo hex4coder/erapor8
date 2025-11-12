@@ -32,6 +32,20 @@ export default [
         subject: 'Wali',
       },
       {
+        title: 'Kokurikuler',
+        to: 'walas-kokurikuler',
+        icon: { icon: 'tabler-hand-finger-right' },
+        action: 'read',
+        subject: 'Wali',
+      },
+      {
+        title: 'Catatan Wali Kelas',
+        to: 'walas-catatan-walas',
+        icon: { icon: 'tabler-hand-finger-right' },
+        action: 'read',
+        subject: 'Wali',
+      },
+      {
         title: 'Kenaikan Kelas',
         to: 'walas-kenaikan-kelas',
         icon: { icon: 'tabler-hand-finger-right' },

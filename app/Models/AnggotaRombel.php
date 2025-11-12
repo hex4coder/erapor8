@@ -109,6 +109,12 @@ class AnggotaRombel extends Model
 	public function single_catatan_wali(){
 		return $this->hasOne(CatatanWali::class, 'anggota_rombel_id', 'anggota_rombel_id');
 	}
+	public function kokurikuler(){
+		return $this->hasOne(CatatanWali::class, 'anggota_rombel_id', 'anggota_rombel_id')->where('type', 'kokurikuler');
+	}
+	public function catatan_walas(){
+		return $this->hasOne(CatatanWali::class, 'anggota_rombel_id', 'anggota_rombel_id')->where('type', 'catatan_walas');
+	}
 	public function prestasi(){
 		return $this->hasMany(Prestasi::class, 'anggota_rombel_id', 'anggota_rombel_id');
 	}

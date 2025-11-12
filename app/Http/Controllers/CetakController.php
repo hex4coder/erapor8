@@ -420,6 +420,8 @@ class CetakController extends Controller
 					'wali_kelas'
 				]);
 			},
+			'kokurikuler',
+			'catatan_walas',
 			'kenaikan',
 			'all_prakerin',
 			'single_catatan_wali',
