@@ -39,7 +39,7 @@ const fetchData = async () => {
         semester_id: defaultForm.value.semester_id,
         periode_aktif: defaultForm.value.nama,
         aksi: defaultForm.value.aksi,
-        pilihan: false,
+        pilihan: 0,
       },
     }));
     let getData = response.data.value
@@ -148,7 +148,7 @@ const getRasio = (rasio) => {
                 </template>
                 <template v-else>
                   <td class="text-center">{{ getNilaiPilihan(pembelajaran.all_nilai_akhir_kurmer, item.anggota_pilihan)
-                    }}
+                  }}
                   </td>
                 </template>
               </template>
@@ -178,7 +178,7 @@ const getRasio = (rasio) => {
                 </template>
                 <template v-else>
                   <td class="text-center">{{ getNilaiPilihan(pembelajaran.all_nilai_akhir_kurmer, item.anggota_pilihan)
-                    }}
+                  }}
                   </td>
                 </template>
               </template>

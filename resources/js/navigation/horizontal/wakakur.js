@@ -7,8 +7,8 @@ export default [
         title: 'Catatan Sikap',
         to: 'monitoring-catatan-sikap',
         icon: { icon: 'tabler-hand-finger-right' },
+        subject: 'Waka',
         action: 'read',
-        subject: 'Wali',
       },
       {
         icon: { icon: 'tabler-hand-finger-right' },

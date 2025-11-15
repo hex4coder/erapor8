@@ -120,12 +120,12 @@ class AuthController extends Controller
     }
     private function loggedUser($user){
         $semester = Semester::find(request()->semester_id);
+        $team = Team::updateOrCreate([
+            'name' => $semester->nama,
+            'display_name' => $semester->nama,
+            'description' => $semester->nama,
+        ]);
         if($user->sekolah_id && !$user->peserta_didik_id && !$user->guru_id){
-            $team = Team::updateOrCreate([
-                'name' => $semester->nama,
-                'display_name' => $semester->nama,
-                'description' => $semester->nama,
-            ]);
             if(!$user->hasRole('admin', $semester->nama)){
                 $user->addRole('admin', $team);
             }
@@ -334,7 +334,8 @@ class AuthController extends Controller
             ];
         }
         $userAbility = array_filter(array_merge($general, $admin, $tu, $guru, $waka, $wali, $pilihan, $kaprog, $projek, $internal, $pembina_ekskul, $pembimbing, $siswa));
-        $roles = $user->roles->unique()->pluck('display_name')->toArray();
+        $roles = $user->roles()->wherePivot('team_id', $team->id)->get()->pluck('display_name')->toArray();
+        //$roles = $user->roles->unique()->pluck('display_name')->toArray();
         $sekolah = $user->sekolah;
         unset($user->sekolah, $user->roles);
         $tokenResult = $user->createToken('Personal Access Token');

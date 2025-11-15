@@ -313,7 +313,7 @@ class PklController extends Controller
             $data = [
                 'color' => 'error',
                 'title' => 'Gagal!',
-                'text' => $text.' gagal disimpan. Silahkan coba beberapa saat lagi!',
+                'text' => $text.' gagal disimpan. Tidak ada TP terpilih!',
             ];
         }
         return response()->json($data);

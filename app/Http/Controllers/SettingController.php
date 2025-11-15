@@ -449,7 +449,11 @@ class SettingController extends Controller
                 $find_mapel_p5 = Pembelajaran::where('guru_id', $d->guru_id)->where('semester_id', request()->semester_id)->where('mata_pelajaran_id', 200040000)->has('tema')->first();
                 if($find_mapel_p5){
                     if(!$user->hasRole($p5Role, request()->periode_aktif)){
-                        $user->addRole($p5Role, request()->periode_aktif);
+                        if(request()->semester_id <= 20251){
+                            $user->addRole($p5Role, request()->periode_aktif);
+                        }
+                    } elseif(request()->semester_id >= 20251){
+                        $user->removeRole($p5Role, request()->periode_aktif);
                     }
                 } else {
                     $user->removeRole($p5Role, request()->periode_aktif);

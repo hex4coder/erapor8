@@ -8,6 +8,9 @@
                 target="_blank">Vue.js 3</a>
             menggunakan <a href="https://vuetifyjs.com" target="_blank">vuetifyjs</a>
         </li>
+        <li><b class="text-success">[Pembaharuan]</b> Penyesuaian aplikasi dengan PPA Tahun 2025</li>
+        <li><b class="text-success">[Pembaharuan]</b> Format cetak rapor sesuai PPA Tahun 2025</li>
+        <li><b class="text-success">[Pembaharuan]</b> Menu Kokurikuler &amp; Catatan Wali Kelas di login Wali Kelas</li>
     </ol>
     <legend>
         <h3>Versi 7.0.8</h3>
