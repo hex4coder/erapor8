@@ -84,9 +84,11 @@ php artisan db:seed
 
 ## Panduan Aplikasi
 
-- Panduan instal aplikasi. Silahkan download [disini](#)
+- Panduan instal aplikasi. Silahkan download [disini](https://drive.google.com/file/d/16Y8zR9aGE5B7pJUqMh9f15t0dmglom53/view?usp=sharing)
 
-- Panduan penggunaan aplikasi. silahkan download [disini](#)
+- Panduan penggunaan aplikasi (Login Admin). silahkan download [disini](https://drive.google.com/file/d/1qo7zEbzcfCPGEtvoq3Lip_bZ3XE8c0uU/view?usp=drive_link)
+
+- Panduan penggunaan aplikasi (Login Guru). silahkan download [disini](https://drive.google.com/file/d/1r0lyGxrSZs45KcItw1lk6Jkn2nby8hff/view?usp=drive_link)
 
 ## Untuk pengguna windows
 
