@@ -1,13 +1,14 @@
 <script setup>
-import navItems from '@/navigation/horizontal'
-import { themeConfig } from '@themeConfig'
+import navItems from '@/navigation/horizontal';
+import { themeConfig } from '@themeConfig';
+console.log(navItems);
 
 // Components
-import Footer from '@/layouts/components/Footer.vue'
-import NavbarShortcuts from '@/layouts/components/NavbarShortcuts.vue'
-import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
-import UserProfile from '@/layouts/components/UserProfile.vue'
-import { HorizontalNavLayout } from '@layouts'
+import Footer from '@/layouts/components/Footer.vue';
+import NavbarShortcuts from '@/layouts/components/NavbarShortcuts.vue';
+import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
+import UserProfile from '@/layouts/components/UserProfile.vue';
+import { HorizontalNavLayout } from '@layouts';
 </script>
 
 <template>
