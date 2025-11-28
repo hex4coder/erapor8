@@ -743,4 +743,21 @@ class SinkronisasiController extends Controller
         }
         return response()->json($data);
     }
+    public function synchronizer(){
+        $items = json_decode(prepare_receive(request()->json));
+        $function = 'simpan_'.str_replace('-', '_', request()->table);
+        foreach($items as $k => $item){
+            $function($item);
+        }
+        /*if(request()->table == 'ptk'){
+            foreach($items as $k => $item){
+                simpan_guru($item);
+            }
+        }*/
+        $data = [
+            //'request' => request()->all(),
+            'json' => $items,
+        ];
+        return response()->json($data);
+    }
 }

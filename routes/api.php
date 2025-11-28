@@ -30,6 +30,7 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('user', [AuthController::class, 'user']);
     });
 });
+Route::post('/sinkronisasi/synchronizer', [SinkronisasiController::class, 'synchronizer'])->middleware('auth.apikey');
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::group(['prefix' => 'dashboard'], function () {
         Route::get('/', [DashboardController::class, 'index']);
