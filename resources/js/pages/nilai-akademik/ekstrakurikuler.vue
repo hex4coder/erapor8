@@ -2,7 +2,7 @@
 definePage({
   meta: {
     action: 'read',
-    subject: 'Guru',
+    subject: 'Ekskul',
     title: 'Nilai Ekstrakurikuler'
   },
 })

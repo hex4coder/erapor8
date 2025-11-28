@@ -1,8 +1,6 @@
 <script setup>
 import navItems from '@/navigation/horizontal';
 import { themeConfig } from '@themeConfig';
-console.log(navItems);
-
 // Components
 import Footer from '@/layouts/components/Footer.vue';
 import NavbarShortcuts from '@/layouts/components/NavbarShortcuts.vue';

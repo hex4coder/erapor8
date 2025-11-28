@@ -93,11 +93,11 @@ const confirmAlert = () => {
               </tr>
               <tr>
                 <td>Nama Sekolah</td>
-                <td>{{ $sekolah.alamat }}</td>
+                <td>{{ $sekolah.nama }}</td>
               </tr>
               <tr>
                 <td>Desa Kelurahan Sekolah</td>
-                <td>{{ $sekolah.desa_kelurahan }}</td>
+                <td>{{ $sekolah.alamat }}</td>
               </tr>
             </tbody>
           </VTable>
