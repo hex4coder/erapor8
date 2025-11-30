@@ -749,13 +749,7 @@ class SinkronisasiController extends Controller
         foreach($items as $k => $item){
             $function($item);
         }
-        /*if(request()->table == 'ptk'){
-            foreach($items as $k => $item){
-                simpan_guru($item);
-            }
-        }*/
         $data = [
-            //'request' => request()->all(),
             'json' => $items,
         ];
         return response()->json($data);
