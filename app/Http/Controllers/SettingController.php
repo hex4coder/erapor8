@@ -112,9 +112,9 @@ class SettingController extends Controller
                 'bg_login.image' => 'Kustom Background harus berupa berkas gambar',
                 'bg_login.mimes' => 'Kustom Background harus berekstensi (jpg, jpeg, png)',
                 'bg_login.max' => 'Kustom Background maksimal 1 MB.',
-                'ttd_kepsek.image' => 'Kustom Background harus berupa berkas gambar',
-                'ttd_kepsek.mimes' => 'Kustom Background harus berekstensi (jpg, jpeg, png)',
-                'ttd_kepsek.max' => 'Kustom Background maksimal 1 MB.',
+                'ttd_kepsek.image' => 'File TTD Kepala Sekolah harus berupa berkas gambar',
+                'ttd_kepsek.mimes' => 'File TTD Kepala harus berekstensi (jpg, jpeg, png)',
+                'ttd_kepsek.max' => 'File TTD Kepala maksimal 1 MB.',
                 'ttd_tinggi.numeric' => 'Ukuran Tinggi Scan TTD Kepala Sekolah.',
                 'ttd_lebar.numeric' => 'Ukuran Lebar Scan TTD Kepala Sekolah.',
             ]
