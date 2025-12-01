@@ -40,7 +40,7 @@ class SettingController extends Controller
             $array = [];
             foreach($files as $file){
                 $array[] = [
-                    'fileName' => $file->getFilename(),
+                    'fileName' => $this->folder.'/'.$file->getFilename(),
                     'fileSize' => $this->bytesToMB($file->getSize()),
                     'fileDate' => date('Y-m-d H:i:s', $file->getMTime()),
                 ];
