@@ -111,8 +111,8 @@ class SettingController extends Controller
                 'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
                 'bg_login' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
                 'ttd_kepsek' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
-                'ttd_tinggi' => 'numeric',
-                'ttd_lebar' => 'numeric',
+                'ttd_tinggi' => 'nullable|numeric',
+                'ttd_lebar' => 'nullable|numeric',
             ],
             [
                 'semester_id.required' => 'Periode Aktif tidak boleh kosong.',
