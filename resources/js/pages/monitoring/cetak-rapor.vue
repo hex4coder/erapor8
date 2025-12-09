@@ -141,7 +141,8 @@ const changeRombel = async (val) => {
             </td>
             <td class="text-center">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="success" variant="text"
-                :href="`/cetak/rapor-cover/${item.peserta_didik_id}`" target="_blank" />
+                :href="`/cetak/rapor-cover/${item.peserta_didik_id}/${defaultForm.sekolah_id}/${defaultForm.semester_id}`"
+                target="_blank" />
             </td>
             <td class="text-center" v-if="form.is_new_ppa">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="warning" variant="text"
@@ -150,7 +151,7 @@ const changeRombel = async (val) => {
             </td>
             <td class="text-center" v-else-if="form.merdeka || form.is_ppa">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="warning" variant="text"
-                :href="`/cetak/rapor-nilai-akhir/${item.peserta_didik_id}/${form.sekolah_id}/${form.semester_id}`"
+                :href="`/cetak/rapor-nilai-akhir/${item.anggota_rombel.anggota_rombel_id}/${form.sekolah_id}/${form.semester_id}`"
                 target="_blank" />
             </td>
             <td class="text-center" v-else>
@@ -164,11 +165,12 @@ const changeRombel = async (val) => {
             </td>
             <td class="text-center" v-if="form.merdeka && !form.is_new_ppa">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="info" variant="text"
-                :href="`/cetak/rapor-p5/${item.peserta_didik_id}/${form.semester_id}`" target="_blank" />
+                :href="`/cetak/rapor-p5/${item.anggota_rombel.anggota_rombel_id}/${form.semester_id}`"
+                target="_blank" />
             </td>
             <td class="text-center">
               <VBtn size="x-large" icon="tabler-file-type-pdf" color="error" variant="text"
-                :href="`/cetak/rapor-pelengkap/${item.peserta_didik_id}/${item.anggota_rombel.rombongan_belajar_id}`"
+                :href="`/cetak/rapor-pelengkap/${item.peserta_didik_id}/${defaultForm.sekolah_id}/${defaultForm.semester_id}`"
                 target="_blank" />
             </td>
           </tr>

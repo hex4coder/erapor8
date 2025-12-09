@@ -246,7 +246,7 @@ class SettingController extends Controller
         }
         $logo_sekolah = NULL;
         if($request->bg_login){
-            $bg_login = $request->bg_login->store('images');
+            $bg_login = $request->bg_login->store('images', 'public');
             Setting::updateOrCreate(
                 [
                     'key' => 'bg_login',
@@ -257,7 +257,7 @@ class SettingController extends Controller
             );
         }
         if($request->ttd_kepsek){
-            $ttd_kepsek = $request->ttd_kepsek->store('images');
+            $ttd_kepsek = $request->ttd_kepsek->store('images', 'public');
             Setting::updateOrCreate(
                 [
                     'key' => 'ttd_kepsek',
@@ -343,7 +343,7 @@ class SettingController extends Controller
         }
         if($request->photo){
             $sekolah = Sekolah::find($request->sekolah_id);
-            $logo = $request->photo->store('images');
+            $logo = $request->photo->store('images', 'public');
             $sekolah->logo_sekolah = basename($logo);
             $sekolah->save();
             Setting::updateOrCreate(
