@@ -260,7 +260,7 @@
     <table width="100%" style="margin-top:10px;">
         <tr>
             <td style="width:40%;padding-right:0px;" class="text-right">
-                <br>
+                <p>{{ $extend }}</p>
                 <br>
                 <br>
                 <br>

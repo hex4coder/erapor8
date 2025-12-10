@@ -177,16 +177,25 @@
                 {{ $pd->nama_wali ? $pd->pekerjaan_wali->nama : '-' }}</td>
         </tr>
     </table>
+    <?php
+    $ks = get_setting('jabatan', $pd->sekolah_id, $pd->kelas->semester_id);
+    $jabatan = str_replace('Plh. ', '', $ks);
+    $jabatan = str_replace('Plt. ', '', $jabatan);
+    $extend = str_replace('Kepala Sekolah', '', $ks);
+    $extend = str_replace(' ', '', $extend);
+    ?>
     <table width="100%" style="margin-top:50px;">
         <tr>
             <td style="width: 15%;padding:5px;" rowspan="5"></td>
             <td style="width: 15%;padding:5px; border:1px solid #000000;" rowspan="5" align="center">
                 Pas Foto<br>3 x 4
             </td>
-            <td style="width: 15%;padding:5px;" rowspan="5">&nbsp;</td>
+            <td style="width: 15%;padding-right:0px; vertical-align:top;" rowspan="5" class="text-right">
+                <br>{{ $extend }}
+            </td>
             <td style="width: 50%;padding:5px;">
                 {{ str_replace('Kab. ', '', $pd->sekolah->kabupaten) }},
-                {{ $pd->diterima }}<br />{{ get_setting('jabatan', $pd->sekolah_id, $pd->kelas->semester_id) }}
+                {{ $pd->diterima }}<br />{{ $jabatan }}
             </td>
         </tr>
         <tr>
