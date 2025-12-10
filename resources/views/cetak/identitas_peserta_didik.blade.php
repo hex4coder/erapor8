@@ -223,8 +223,19 @@
         @endif
         <tr>
             <td style="width: 50%;padding:5px;">
-                {{ $pd->kelas->sekolah->kasek ? $pd->sekolah->kasek->nama_lengkap : $pd->kelas->sekolah->kepala_sekolah?->nama_lengkap }}<br />NIP.
-                {{ $pd->kelas->sekolah->kasek ? $pd->kelas->sekolah->kasek->nip : $pd->kelas->sekolah->kepala_sekolah?->nip }}
+                <strong><u>
+                        @if ($pd->kelas->sekolah->kasek)
+                            {{ $pd->kelas->sekolah->kasek->nama_lengkap }}
+                        @elseif($pd->kelas->sekolah->kepala_sekolah)
+                            {{ $pd->kelas->sekolah->kepala_sekolah?->nama_lengkap }}
+                        @endif
+                    </u></strong>
+                <br>NIP.
+                @if ($pd->kelas->sekolah->kasek)
+                    {{ $pd->kelas->sekolah->kasek->nip }}
+                @elseif($pd->kelas->sekolah->kepala_sekolah)
+                    {{ $pd->kelas->sekolah->kepala_sekolah?->nip }}
+                @endif
             </td>
         </tr>
     </table>
