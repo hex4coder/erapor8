@@ -326,6 +326,18 @@ class PklController extends Controller
                 $insert++;
             }
             TpPkl::where('pkl_id', request()->pkl_id)->whereNotIn('tp_id', request()->tp_id)->delete();
+            $anggota_akt_pd = AnggotaAktPd::whereHas('anggota_rombel', function($query){
+                $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
+            })->where('akt_pd_id', request()->akt_pd_id)->get();
+            $peserta_didik_id = [];
+            foreach($anggota_akt_pd as $anggota){
+                $peserta_didik_id[] = $anggota->peserta_didik_id;
+                PdPkl::updateOrCreate([
+                    'peserta_didik_id' => $anggota->peserta_didik_id,
+                    'pkl_id' => $pkl->pkl_id,
+                ]);
+            }
+            PdPkl::where('pkl_id', request()->pkl_id)->whereNotIn('peserta_didik_id', $peserta_didik_id)->delete();
         }
         if($insert){
             $data = [
