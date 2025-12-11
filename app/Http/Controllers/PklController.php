@@ -171,7 +171,10 @@ class PklController extends Controller
                     $query->where('rombongan_belajar_id', request()->rombongan_belajar_id);
                 });
             });
-        })->orderBy('judul_akt_pd')->get();
+            $query->whereHas('bimbing_pd', function($query){
+                $query->where('guru_id', request()->guru_id);
+            });
+        })->with(['pembimbing'])->orderBy('judul_akt_pd')->get();
         return $data;
     }
     private function get_tp(){
