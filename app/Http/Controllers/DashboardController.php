@@ -13,6 +13,7 @@ use App\Models\AnggotaRombel;
 use App\Models\DeskripsiMataPelajaran;
 use App\Models\Absensi;
 use App\Models\NilaiAkhir;
+use App\Models\PesertaDidik;
 
 class DashboardController extends Controller
 {
