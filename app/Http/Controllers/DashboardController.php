@@ -649,7 +649,7 @@ class DashboardController extends Controller
                      ],
                      [
                         'deskripsi_pengetahuan' => str_replace('. ,', '', $akhir['deskripsi_pengetahuan']),
-                        'deskripsi_keterampilan' => ($akhir['deskripsi_keterampilan'] != '. ') ? str_replace('. ,', '', $akhir['deskripsi_keterampilan']) : NULL,
+                        'deskripsi_keterampilan' => (!in_array($akhir['deskripsi_keterampilan'], ['. ', '. ,,'])) ? str_replace('. ,', '', $akhir['deskripsi_keterampilan']) : NULL,
                         'last_sync' => now()->subDays(30),
                      ]
                   );
