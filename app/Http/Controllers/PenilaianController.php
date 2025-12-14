@@ -382,10 +382,14 @@ class PenilaianController extends Controller
                     $this->wherehas($query);
                 },
                 'tp_kompeten' => function($query){
-                    $this->wherehas($query);
+                    $query->whereHas('tp_mapel', function($query){
+                        $query->where('pembelajaran_id', request()->pembelajaran_id);
+                    });
                 },
                 'tp_inkompeten' => function($query){
-                    $this->wherehas($query);
+                    $query->whereHas('tp_mapel', function($query){
+                        $query->where('pembelajaran_id', request()->pembelajaran_id);
+                    });
                 },
                 'nilai_tp' => function($query){
                     $query->where('pembelajaran_id', request()->pembelajaran_id);
@@ -482,11 +486,15 @@ class PenilaianController extends Controller
                     $query->where('pembelajaran_id', request()->pembelajaran_id);
                 },
                 'tp_kompeten' => function($query){
-                    $this->wherehas($query);
+                    $query->whereHas('tp_mapel', function($query){
+                        $query->where('pembelajaran_id', request()->pembelajaran_id);
+                    });
                     $query->withWhereHas('tp');
                 },
                 'tp_inkompeten' => function($query){
-                    $this->wherehas($query);
+                    $query->whereHas('tp_mapel', function($query){
+                        $query->where('pembelajaran_id', request()->pembelajaran_id);
+                    });
                     $query->withWhereHas('tp');
                 },
             ]);
