@@ -121,7 +121,9 @@ class PenilaianController extends Controller
                     $kompetensi_id = 99;
                 }
             }
+            $anggota_id = [];
             foreach(request()->akhir as $anggota_rombel_id => $nilai_akhir){
+                $anggota_id[] = $anggota_rombel_id;
                 $insert++;
                 if($nilai_akhir >= 0 && $nilai_akhir <= 100){
                     NilaiAkhir::updateOrCreate(
@@ -140,6 +142,7 @@ class PenilaianController extends Controller
                     NilaiAkhir::where('anggota_rombel_id', $anggota_rombel_id)->where('pembelajaran_id', request()->pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->delete();
                 }
             }
+            NilaiAkhir::whereNotIn('anggota_rombel_id', $anggota_id)->where('pembelajaran_id', request()->pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->delete();
             $first = [];
             $last = [];
             foreach(request()->kompeten as $uuid => $kompeten){
